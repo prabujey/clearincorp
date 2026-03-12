@@ -1,0 +1,11 @@
+# Nixpacks configuration for Railway deployment
+# This tells Railway to use Java 17 with Maven
+
+[phases.setup]
+nixPkgs = ["jdk17", "maven"]
+
+[phases.build]
+cmds = ["mvn clean package -DskipTests"]
+
+[start]
+cmd = "java -jar -Dspring.profiles.active=railway -Dserver.port=${PORT:-8080} target/llc-api-1.0-SNAPSHOT.jar"
