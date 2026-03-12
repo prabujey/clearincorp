@@ -33,14 +33,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final CognitoIdentityProviderClient cognitoClient;
 
-    public JwtAuthenticationFilter(CognitoIdentityProviderClient cognitoClient) {
+    public JwtAuthenticationFilter(@org.springframework.lang.Nullable CognitoIdentityProviderClient cognitoClient) {
         this.cognitoClient = cognitoClient;
+        if (cognitoClient == null) {
+            log.warn("Cognito client is null - JWT authentication is disabled");
+        }
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+
+        // Skip authentication if Cognito is not configured
+        if (cognitoClient == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String accessToken = extractToken(request);
 

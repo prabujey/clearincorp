@@ -54,6 +54,7 @@ public class EmailTokenService {
     private final CompanyRepository companyRepository;
     private final S3Service s3Service;
     private final LoginAuditService loginAuditService;
+    private final boolean cognitoEnabled;
 
         @Value("${frontend.origin.cloudFront:}")
         private String fullUrl;
@@ -72,11 +73,12 @@ public class EmailTokenService {
     private final String hmacAlgorithm;
     private final String defaultPassword;
 
-    public EmailTokenService(EmailTokenRepository emailTokenRepository, SendEmailService sendEmailService, LoginUserRepository loginUserRepository, CognitoIdentityProviderClient cognitoClient, CompanyRepository companyRepository, AwsConfiguration awsConfiguration, S3Service s3Service, LoginAuditService loginAuditService) {
+    public EmailTokenService(EmailTokenRepository emailTokenRepository, SendEmailService sendEmailService, LoginUserRepository loginUserRepository, @org.springframework.lang.Nullable CognitoIdentityProviderClient cognitoClient, CompanyRepository companyRepository, AwsConfiguration awsConfiguration, S3Service s3Service, LoginAuditService loginAuditService) {
         this.emailTokenRepository = emailTokenRepository;
         this.sendEmailService = sendEmailService;
         this.loginUserRepository = loginUserRepository;
         this.cognitoClient = cognitoClient;
+        this.cognitoEnabled = cognitoClient != null;
         this.companyRepository = companyRepository;
         this.s3Service = s3Service;
         this.loginAuditService = loginAuditService;
@@ -86,10 +88,21 @@ public class EmailTokenService {
         this.clientSecret = cognitoConfig.getClientSecret();
         this.hmacAlgorithm = cognitoConfig.getHmacAlgorithm();
         this.defaultPassword = cognitoConfig.getDefaultPassword();
+
+        if (!cognitoEnabled) {
+            log.warn("Cognito client is null - authentication features will not work!");
+        }
+    }
+
+    private void requireCognito() {
+        if (!cognitoEnabled) {
+            throw new IllegalStateException("Cognito authentication is not configured. Please set AWS_COGNITO_ENABLED=true and provide valid AWS credentials.");
+        }
     }
 
 
     private void upsertLoginUserIdAttribute(String email, Long loginUserId) {
+        requireCognito();
         cognitoClient.adminUpdateUserAttributes(b -> b
                 .userPoolId(userPoolId)
                 .username(email) // must match Cognito username (you use email)
@@ -273,6 +286,7 @@ public class EmailTokenService {
 
 
     public CognitoJwtResponse refreshAccessToken(String idToken,String refreshToken, String email, HttpServletResponse response) {
+        requireCognito();
         if (refreshToken == null || refreshToken.isBlank()) {
             throw new IllegalStateException("Refresh token cookie is missing");
         }
@@ -339,6 +353,7 @@ public class EmailTokenService {
 
 
 public String logout(String refreshToken, HttpServletResponse response) {
+    requireCognito();
     if (refreshToken == null || refreshToken.isBlank()) {
         throw new IllegalStateException("Refresh token missing");
     }
@@ -403,6 +418,7 @@ public String logout(String refreshToken, HttpServletResponse response) {
 
 
     public void createUser(String email,String groupName) {
+        requireCognito();
         try {
             AdminGetUserRequest getUserRequest = AdminGetUserRequest.builder()
                     .userPoolId(userPoolId)
@@ -440,6 +456,7 @@ public String logout(String refreshToken, HttpServletResponse response) {
         }
     }
     public void setPermanentPassword(String email, String password) {
+        requireCognito();
         AdminSetUserPasswordRequest setPasswordRequest = AdminSetUserPasswordRequest.builder()
                 .userPoolId(userPoolId)
                 .username(email)
@@ -450,6 +467,7 @@ public String logout(String refreshToken, HttpServletResponse response) {
     }
 
     public AuthenticationResultType authenticateUser(String email, String password) {
+        requireCognito();
         Map<String, String> authParams = new HashMap<>();
         authParams.put("USERNAME", email);
         authParams.put("PASSWORD", password);
@@ -472,6 +490,7 @@ public String logout(String refreshToken, HttpServletResponse response) {
     }
 
     public void deleteUser(String email) {
+        requireCognito();
         try {
             AdminDeleteUserRequest deleteUserRequest = AdminDeleteUserRequest.builder()
                     .userPoolId(userPoolId)
