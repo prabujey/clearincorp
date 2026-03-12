@@ -39,17 +39,29 @@ public class S3Service {
     private static final int MAX_DELETE_BATCH_SIZE = 1000;
 
     @Getter
-    @Value("${aws.s3.bucket-name}")
+    @Value("${aws.s3.bucket-name:}")
     private String bucketName;
 
     @Getter
-    @Value("${aws.s3.marketplace-bucket}")
+    @Value("${aws.s3.marketplace-bucket:}")
     private String marketplaceBucketName;
+
+    @Value("${aws.s3.enabled:false}")
+    private boolean s3Enabled;
 
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
 
-    public S3Service(AwsConfiguration awsProperties) {
+    public S3Service(AwsConfiguration awsProperties, @Value("${aws.s3.enabled:false}") boolean s3Enabled) {
+        this.s3Enabled = s3Enabled;
+
+        if (!s3Enabled || isPlaceholder(awsProperties.getAccessKeyId())) {
+            log.warn("AWS S3 is disabled or credentials are placeholders - S3 operations will not work!");
+            this.s3Client = null;
+            this.s3Presigner = null;
+            return;
+        }
+
         AwsBasicCredentials credentials = AwsBasicCredentials.create(
                 awsProperties.getAccessKeyId(),
                 awsProperties.getSecretAccessKey()
@@ -66,9 +78,23 @@ public class S3Service {
                 .region(region)
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .build();
+
+        log.info("AWS S3 client initialized successfully");
+    }
+
+    private boolean isPlaceholder(String value) {
+        return value == null || value.isBlank() ||
+               value.startsWith("YOUR_") || value.equals("placeholder");
+    }
+
+    private void requireS3() {
+        if (s3Client == null) {
+            throw new IllegalStateException("AWS S3 is not configured. Please set AWS_S3_ENABLED=true and provide valid AWS credentials.");
+        }
     }
 
     public ResponseBytes<GetObjectResponse> downloadFile(String key) throws IOException {
+        requireS3();
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
@@ -77,6 +103,7 @@ public class S3Service {
     }
 
     public String generatePresignedGetUrl(String key) {
+        requireS3();
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
@@ -93,6 +120,7 @@ public class S3Service {
     }
 
     public void uploadFile(String key, ByteArrayOutputStream file) throws IOException {
+        requireS3();
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
@@ -102,6 +130,7 @@ public class S3Service {
     }
 
     public void uploadFileWithContentType(String key, byte[] fileBytes, String contentType) {
+        requireS3();
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
@@ -112,6 +141,7 @@ public class S3Service {
     }
 
     public void deleteFile(String key) {
+        requireS3();
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
@@ -121,6 +151,9 @@ public class S3Service {
     }
 
     public boolean doesObjectExist(String key) {
+        if (s3Client == null) {
+            return false;
+        }
         try {
             s3Client.headObject(b -> b.bucket(bucketName).key(key));
             return true;
@@ -134,13 +167,14 @@ public class S3Service {
     }
 
     public Optional<String> generatePresignedGetUrlIfExists(String key) {
-        if (!doesObjectExist(key)) {
+        if (s3Client == null || !doesObjectExist(key)) {
             return Optional.empty();
         }
         return Optional.of(generatePresignedGetUrl(key));
     }
 
     public ResponseBytes<GetObjectResponse> download(String key) {
+        requireS3();
         GetObjectRequest req = GetObjectRequest.builder()
                 .bucket(marketplaceBucketName)
                 .key(key)
@@ -149,6 +183,7 @@ public class S3Service {
     }
 
     public void upload(String key, byte[] bytes, String contentType) {
+        requireS3();
         PutObjectRequest.Builder req = PutObjectRequest.builder()
                 .bucket(marketplaceBucketName)
                 .key(key);
@@ -159,6 +194,7 @@ public class S3Service {
     }
 
     public void delete(String key) {
+        requireS3();
         s3Client.deleteObject(DeleteObjectRequest.builder()
                 .bucket(marketplaceBucketName)
                 .key(key)
@@ -181,6 +217,7 @@ public class S3Service {
      * @return list of S3Object matching the prefix
      */
     public List<S3Object> listByPrefix(String prefix, int maxKeys) {
+        requireS3();
         int safeMaxKeys = Math.min(maxKeys, MAX_OBJECTS_LIMIT);
 
         ListObjectsV2Request req = ListObjectsV2Request.builder()
@@ -198,6 +235,7 @@ public class S3Service {
      * Automatically handles batching if the list exceeds the maximum batch size.
      */
     public void deleteAllKeys(List<String> keys) {
+        requireS3();
         if (keys == null || keys.isEmpty()) return;
 
         // Process in batches to avoid exceeding AWS limits
@@ -238,6 +276,7 @@ public class S3Service {
      * @return list of presigned URLs
      */
     public List<String> getPresignedUrlsForDirectory(String prefix, int maxObjects) {
+        requireS3();
         int safeMaxObjects = Math.min(maxObjects, MAX_OBJECTS_LIMIT);
 
         ListObjectsV2Request listRequest = ListObjectsV2Request.builder()
