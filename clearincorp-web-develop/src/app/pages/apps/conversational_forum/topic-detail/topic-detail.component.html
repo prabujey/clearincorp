@@ -1,0 +1,173 @@
+<div class="topic-detail-wrapper full-screen-layout" *ngIf="topic">
+  <button class="back-btn" type="button" (click)="onBack()">
+    <mat-icon>arrow_back</mat-icon>
+    <span>Back to topics</span>
+  </button>
+
+  <!-- Title Card -->
+  <section class="title-header card-style">
+    <div class="title-row">
+      <h1 class="topic-title">{{ topic.title }}</h1>
+      <div class="actions" *ngIf="canModify(topic,'edit') || canModify(topic,'delete')">
+        <button  [matMenuTriggerFor]="titleMenu" class="action-btn">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #titleMenu="matMenu">
+          <button mat-menu-item *ngIf="canModify(topic,'edit')" (click)="editItem('title', topic)"><mat-icon>edit</mat-icon> Edit</button>
+          <button mat-menu-item *ngIf="canModify(topic,'delete')" (click)="deleteItem('title', topic)"><mat-icon>delete</mat-icon> Delete</button>
+        </mat-menu>
+      </div>
+    </div>
+    <p class="topic-desc" *ngIf="topic.descriptionMd">{{ topic.descriptionMd }}</p>
+    
+    <div class="topic-meta">
+      <div class="stat-group">
+        <span class="stat"><mat-icon>forum</mat-icon> {{ getTotalReplies(topic) }} replies</span>
+        <span class="stat"><mat-icon>visibility</mat-icon> {{ getTotalViews(topic) }} views</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Global Post Composer -->
+  <div class="main-composer card-style">
+    <div class="avatar-col">
+      <img [src]="getUserAvatar(getLoginUserId())" class="user-avatar" alt="Avatar">
+    </div>
+    <div class="input-col">
+      <textarea 
+        class="composer-textarea" 
+        placeholder="Add a post..." 
+        [(ngModel)]="newPostText"
+        rows="1">
+      </textarea>
+      <div class="composer-actions" *ngIf="newPostText.trim()">
+        <button class="btn-cancel" (click)="newPostText = ''">Cancel</button>
+        <button class="btn-submit" [disabled]="isBusy" (click)="createNewPostForTitle(newPostText); newPostText = ''">Post</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Discussion Threads -->
+  <div class="thread-container">
+    <div class="post-block card-style" *ngFor="let post of topic.posts; trackBy: trackPost">
+      <div class="comment-row main-post">
+        <div class="avatar-col">
+          <img [src]="getUserAvatar(post.loginUserId)" class="user-avatar" alt="Avatar">
+        </div>
+        <div class="content-col">
+          <div class="header">
+            <span class="author">{{ getPostAuthorName(post) }}</span>
+            <span class="timestamp">{{ getTimeLabel(post.createdAt) }}</span>
+          </div>
+          <div class="text">{{ post.content }}</div>
+          <div class="actions">
+            <button class="action-btn" [class.active]="post.isLiked" (click)="onLikePost(post)">
+              <mat-icon>{{ post.isLiked ? 'thumb_up' : 'thumb_up_off_alt' }}</mat-icon>
+              <span *ngIf="post.likesCount">{{ post.likesCount }}</span>
+            </button>
+            <button class="action-btn" (click)="onReplyToPost(post)">Reply</button>
+            
+            <button *ngIf="canModify(post,'edit') || canModify(post,'delete')"  [matMenuTriggerFor]="postMenu" class="action-btn">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #postMenu="matMenu">
+              <button mat-menu-item *ngIf="canModify(post,'edit')" (click)="editItem('post', post)"><mat-icon>edit</mat-icon> Edit</button>
+              <button mat-menu-item *ngIf="canModify(post,'delete')" (click)="deleteItem('post', post)"><mat-icon>delete</mat-icon> Delete</button>
+            </mat-menu>
+          </div>
+
+          <!-- Inline Reply Box for Post -->
+          <div class="inline-reply-box" *ngIf="replyingToPostId === post.postId && !replyingToReplyId">
+            <div class="avatar-col small">
+              <img [src]="getUserAvatar(getLoginUserId())" class="user-avatar" alt="Avatar">
+            </div>
+            <div class="input-col">
+              <textarea class="composer-textarea" [(ngModel)]="inlineReplyText" placeholder="Add a reply..."></textarea>
+              <div class="composer-actions">
+                <button class="btn-cancel" (click)="cancelInlineReply()">Cancel</button>
+                <button class="btn-submit" [disabled]="isBlank(inlineReplyText) || isBusy" (click)="submitInlineReply(post)">Reply</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Root Replies -->
+          <div class="replies-wrapper" *ngIf="post.replies?.length">
+            <button class="toggle-btn" (click)="toggleReplies(post)">
+              <mat-icon>{{ isRepliesOpen(post) ? 'arrow_drop_up' : 'arrow_drop_down' }}</mat-icon>
+              {{ isRepliesOpen(post) ? 'Hide' : 'Show' }} {{ post.replies?.length }} {{ post.replies?.length === 1 ? 'reply' : 'replies' }}
+            </button>
+
+            <div class="nested-replies" *ngIf="isRepliesOpen(post)">
+              <ng-container 
+                [ngTemplateOutlet]="replyTree" 
+                [ngTemplateOutletContext]="{ replies: post.replies, post: post }">
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recursive Template for Replies -->
+  <ng-template #replyTree let-replies="replies" let-post="post">
+    <div class="reply-item" *ngFor="let reply of replies; trackBy: trackReply">
+      <div class="comment-row reply-row">
+        <div class="avatar-col small">
+          <img [src]="getUserAvatar(reply.loginUserId)" class="user-avatar" alt="Avatar">
+        </div>
+        <div class="content-col">
+          <div class="header">
+            <span class="author">{{ getReplyAuthorName(reply) }}</span>
+            <span class="timestamp">{{ getTimeLabel(reply.createdAt) }}</span>
+          </div>
+          <div class="text">{{ reply.content }}</div>
+          <div class="actions">
+            <button class="action-btn" [class.active]="reply.isLiked" (click)="onLikeReply(reply)">
+              <mat-icon>{{ reply.isLiked ? 'thumb_up' : 'thumb_up_off_alt' }}</mat-icon>
+              <span *ngIf="reply.likesCount">{{ reply.likesCount }}</span>
+            </button>
+            <button class="action-btn" (click)="onReplyToReply(post, reply)">Reply</button>
+            
+            <button *ngIf="canModify(reply,'edit') || canModify(reply,'delete')"  [matMenuTriggerFor]="replyMenu" class="action-btn">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #replyMenu="matMenu">
+              <button mat-menu-item *ngIf="canModify(reply,'edit')" (click)="editItem('reply', reply)"><mat-icon>edit</mat-icon> Edit</button>
+              <button mat-menu-item *ngIf="canModify(reply,'delete')" (click)="deleteItem('reply', reply, post)"><mat-icon>delete</mat-icon> Delete</button>
+            </mat-menu>
+          </div>
+
+          <!-- Inline Reply Box for Reply -->
+          <div class="inline-reply-box" *ngIf="replyingToPostId === post.postId && replyingToReplyId === reply.replyId">
+            <div class="avatar-col small">
+              <img [src]="getUserAvatar(getLoginUserId())" class="user-avatar" alt="Avatar">
+            </div>
+            <div class="input-col">
+              <textarea class="composer-textarea" [(ngModel)]="inlineReplyText" placeholder="Add a reply..."></textarea>
+              <div class="composer-actions">
+                <button class="btn-cancel" (click)="cancelInlineReply()">Cancel</button>
+                <button class="btn-submit" [disabled]="isBlank(inlineReplyText) || isBusy" (click)="submitInlineReply(post)">Reply</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Nested Child Thread Toggle -->
+          <div class="child-thread-wrapper" *ngIf="reply.children?.length">
+            <button class="toggle-btn sub-toggle" (click)="toggleChildThread(reply)">
+              <mat-icon>{{ isChildThreadOpen(reply) ? 'arrow_drop_up' : 'arrow_drop_down' }}</mat-icon>
+              {{ isChildThreadOpen(reply) ? 'Hide' : 'Show' }} {{ reply.children?.length }} {{ reply.children?.length === 1 ? 'reply' : 'replies' }}
+            </button>
+
+            <div class="child-thread-content" *ngIf="isChildThreadOpen(reply)">
+               <ng-container 
+                [ngTemplateOutlet]="replyTree" 
+                [ngTemplateOutletContext]="{ replies: reply.children, post: post }">
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</div>

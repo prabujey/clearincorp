@@ -1,0 +1,442 @@
+/*
+ * =========================================
+ * Production Styles for Notification Dropdown
+ * =========================================
+ */
+
+ /* =========================================
+   Premium Notification Dropdown UI
+   ========================================= */
+
+.notification-menu {
+  .mat-mdc-menu-content {
+    padding: 0 !important;
+  }
+
+  .mat-mdc-menu-panel {
+    border-radius: 16px !important;
+    overflow: hidden;
+    border: 1px solid rgba(2, 6, 23, 0.10);
+    box-shadow: 0 24px 60px rgba(2, 6, 23, 0.20),
+                0 10px 30px rgba(2, 6, 23, 0.14) !important;
+    background: #fff;
+  }
+}
+
+.notif-panel {
+  width: 360px;
+  max-height: 460px;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+/* Header */
+.notif-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom: 1px solid rgba(2, 6, 23, 0.08);
+
+  background:
+    radial-gradient(900px 250px at 0% 0%, rgba(0, 40, 104, 0.08), transparent 60%),
+    radial-gradient(900px 250px at 100% 0%, rgba(191, 10, 48, 0.08), transparent 60%),
+    #fff;
+
+  h6 {
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.2px;
+    color: #0f172a;
+  }
+
+  p {
+    font-size: 12px;
+    color: #64748b;
+  }
+}
+
+.notif-title {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.notif-title-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 40, 104, 0.08);
+  color: #002868;
+}
+
+.notif-count-chip {
+  min-width: 28px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 900;
+  background: rgba(2, 6, 23, 0.06);
+  color: #0f172a;
+
+  &.has {
+    background: rgba(191, 10, 48, 0.12);
+    color: #bf0a30;
+    border: 1px solid rgba(191, 10, 48, 0.18);
+  }
+}
+
+/* List (only this scrolls) */
+.notif-list {
+  flex: 1;
+  min-height: 120px;
+  padding: 10px 12px;
+}
+
+/* Empty state */
+.notif-empty {
+  height: 220px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 24px;
+  color: #64748b;
+
+  h6 {
+    margin-top: 10px;
+    color: #0f172a;
+    font-weight: 900;
+  }
+
+  p {
+    font-size: 12px;
+  }
+}
+
+.notif-empty-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: rgba(34, 197, 94, 0.10);
+  border: 1px solid rgba(34, 197, 94, 0.18);
+
+  mat-icon {
+    color: #16a34a;
+  }
+}
+
+/* Items */
+.notif-item {
+  border-radius: 12px !important;
+  margin: 8px 0 !important;
+  padding: 12px 12px !important;
+
+  border: 1px solid rgba(2, 6, 23, 0.06);
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.02), rgba(2, 6, 23, 0));
+  transition: transform 160ms ease, box-shadow 200ms ease, border-color 180ms ease;
+
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: rgba(191, 10, 48, 0.16);
+    box-shadow: 0 12px 26px rgba(2, 6, 23, 0.10),
+                0 0 0 3px rgba(191, 10, 48, 0.06);
+  }
+}
+
+.notif-item-left {
+  min-width: 0;
+  flex: 1;
+}
+
+.notif-message {
+  font-size: 14px;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1.35;
+  margin-bottom: 6px;
+}
+
+.notif-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #64748b;
+
+  strong {
+    font-weight: 900;
+    color: #334155;
+
+    &.overdue {
+      color: #bf0a30;
+    }
+  }
+}
+
+/* Priority dot */
+.priority-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  margin-top: 5px;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px rgba(2, 6, 23, 0.05);
+
+  &.high {
+    background: #ef4444;
+    box-shadow: 0 0 0 3px rgba(2, 6, 23, 0.05), 0 0 12px rgba(239, 68, 68, 0.35);
+  }
+  &.medium {
+    background: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(2, 6, 23, 0.05), 0 0 12px rgba(245, 158, 11, 0.35);
+  }
+  &.low {
+    background: #22c55e;
+    box-shadow: 0 0 0 3px rgba(2, 6, 23, 0.05), 0 0 12px rgba(34, 197, 94, 0.30);
+  }
+}
+
+/* Footer */
+.notif-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+
+  padding: 12px 14px;
+  border-top: 1px solid rgba(2, 6, 23, 0.08);
+  background: #fff;
+}
+
+.notif-cta {
+    background-color: #bf0a30 !important;
+  color: #efeaea !important;
+  text-align: center;
+  border: none;
+  border-radius: 3px;
+  font-weight: 600px;
+  transition: all 0.3s ease;
+  padding: 22px 25px;
+  width: 100%;
+
+  &:hover,
+  &.cdk-program-focused, /* keyboard focus */
+  &.mdc-ripple-upgraded--background-focused {
+    background-image: linear-gradient(
+      to right,
+      #bf0a30,
+      #ef2f49,
+      #f32c3f,
+      #f62b34,
+      #f82c28
+    );
+    transform: translateY(-1px);
+    color: #efeaea !important;
+    // box-shadow: 0 6px 12px -2px rgba(236, 50, 82, 0.6),
+    //             -6px 0 12px -2px rgba(236, 50, 82, 0.4),
+    //              6px 0 12px -2px rgba(236, 50, 82, 0.4);
+  }
+}
+
+
+ .custom-bell-badge {
+  position: relative;
+  margin-right: 8px;
+  padding: 6px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.22s ease-in-out;
+  background: transparent;
+  box-shadow: none;
+
+  .mat-icon {
+    font-size: 26px;
+    width: 26px;
+    height: 26px;
+    line-height: 26px;
+  }
+
+  /* Hover effect */
+  &:hover {
+    background: transparent;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  }
+
+  /* Slight scale when menu is open - class added via TS */
+  &.is-open {
+    background: rgba(76, 175, 80, 0.06);
+    box-shadow: 0 0 0 1px rgba(76, 175, 80, 0.18);
+    transform: translateY(-1px) scale(1.02);
+  }
+}
+
+/* ----------------------------
+   Badge Styling (WhatsApp-like)
+-----------------------------*/
+.custom-bell-badge.mat-badge-small .mat-badge-content,
+.custom-bell-badge .mat-badge-content {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  top: 2px !important;
+  right: 0px !important;
+  font-size: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px #121212;
+}
+
+/* Pulse when there are pending tasks (class from TS) */
+.custom-bell-badge.has-pending:not(.is-open) .mat-badge-content {
+  animation: badgePulse 1.4s infinite ease-in-out;
+}
+
+@keyframes badgePulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(159, 4, 4, 0.6);
+  }
+  70% {
+    transform: scale(1.12);
+    box-shadow: 0 0 0 8px rgba(255, 82, 82, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 82, 82, 0);
+  }
+}
+// Target the Material Menu panel
+.topbar-dd.cardWithShadow {
+  // Remove default mat-menu padding so our layout works
+  .mat-mdc-menu-content {
+    padding: 0 !important;
+  }
+
+  // --- Container Layout (THE FIX) ---
+  // Define the overall dimensions and layout for the *entire* menu
+  .notification-scrollbar {
+    width: 360px;
+    // Set a max-height, but allow it to be shorter if there's less content
+    max-height: 450px;
+    // Use flex-column to create sticky header/footer
+    display: flex;
+    flex-direction: column;
+    background: var(--mdc-list-list-item-container-color, #fff);
+  }
+
+  // --- Sticky Header ---
+  .notification-header {
+    flex-shrink: 0; // Prevent header from shrinking
+    border-color: var(--borderColor, #e5e7eb);
+    background: var(--mdc-list-list-item-container-color, #fff);
+    z-index: 1; // Ensure it stays above list
+    
+    h6 {
+      color: var(--text-primary, #2a3547);
+    }
+  }
+
+  // --- Scrollable List Area ---
+  .notification-list {
+    flex-grow: 1;       // Allow list to fill all available vertical space
+    overflow-y: auto; // Make *only* this part scroll
+    min-height: 100px;  // Give a minimum height for the empty state to display well
+  }
+
+  // --- Individual Item Styling ---
+  .notification-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-decoration: none;
+    border-color: var(--borderColor, #e5e7eb);
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--hover-bg, #f6f9fc);
+    }
+
+    .notification-item-content {
+      min-width: 0; // Essential for text-truncate to work
+      flex-grow: 1;
+    }
+
+    .notification-item-message {
+      font-size: 14px;
+      font-weight: 600; // Make the message stand out
+      color: var(--text-primary, #2a3547);
+      line-height: 1.4;
+      margin-bottom: 4px;
+    }
+
+    .notification-item-meta {
+      color: var(--text-secondary, #7c8fac);
+      
+      .text-danger {
+        font-weight: 600;
+        color: var(--palette-error-main, #002868);
+      }
+    }
+
+    .priority-dot {
+      width: 10px;
+      height: 10px;
+      flex-shrink: 0; // Prevent dot from shrinking
+    }
+  }
+  
+  // --- Empty State Styling ---
+  .notification-empty-state {
+    color: var(--text-secondary, #7c8fac);
+    height: 100%; // Fill the .notification-list area
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px; // Add padding
+
+    ng-icon {
+      color: var(--palette-success-main, #3dd9a3);
+    }
+    h6 {
+      color: var(--text-primary, #2a3547);
+    }
+  }
+
+  // --- Sticky Footer ---
+  .notification-footer {
+    flex-shrink: 0; // Prevent footer from shrinking
+    border-color: var(--borderColor, #e5e7eb);
+    background: var(
+      --mdc-list-list-item-container-color,
+      #fff
+    ); // White background
+    z-index: 1; // Ensure it stays above list
+  }
+}
+

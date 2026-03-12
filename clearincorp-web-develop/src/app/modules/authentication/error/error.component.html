@@ -1,0 +1,38 @@
+<div class="blank-layout-container justify-content-center">
+  <div class="row">
+    <div class="col-12 text-center">
+      <img src="./assets/error.jpg" alt="error-bg" class="error-img" />
+      <h2 class="auth-title f-w-600">Oops!!!</h2>
+
+      <h6 class="f-s-20 f-w-600 m-b-30" *ngIf="errorType === 'network'">
+        Network Interrupted. Please check your internet connection. We’ll take
+        you back automatically once you’re reconnected.
+      </h6>
+
+      <h6 class="f-s-20 f-w-600 m-b-30" *ngIf="errorType === 'client'">
+        Unexpected error occurred. Please try again later.
+      </h6>
+
+      <h6 class="f-s-20 f-w-600 m-b-30" *ngIf="errorType === 'server'">
+        Internal Server Error. Please try again later.
+      </h6>
+
+      <h6 class="f-s-20 f-w-600 m-b-30" *ngIf="errorType === 'unknown'">
+        The page you are trying to access is unavailable at the moment.
+      </h6>
+
+      <h6 class="f-s-20 f-w-600 m-b-30" *ngIf="errorType === 'notfound'">
+        Page not found , Please check the URL.
+      </h6>
+
+      <a
+        mat-flat-button
+        class="button-allset"
+        [routerLink]="['/authentication/login']"
+      >
+       <mat-icon class="me-2" aria-hidden="true">refresh</mat-icon>
+        Retry...
+      </a>
+    </div>
+  </div>
+</div>

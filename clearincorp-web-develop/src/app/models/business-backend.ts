@@ -1,0 +1,145 @@
+// === Shared ===
+export interface Page<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number; // current page index (0-based)
+  size: number;
+}
+
+// === Business DTOs (from backend) ===
+export interface BusinessDto {
+  businessId: number | undefined;
+  ownerId?: number | null;
+  serviceId?: number | null;
+
+  businessName: string;
+  serviceDescription?: string | null;
+  yearsInBusiness?: string;
+  zipCode?: string | null;
+  businessAddress?: string | null;
+  websiteUrl?: string | null;
+  businessLicense?: string | null;
+  businessEmail?: string | null;
+  businessHours?: string | null;
+  city?: string | null;
+  state?: string | null;
+
+  createdBy?: string | null;
+  updatedBy?: string | null;
+  createdOn?: string | null; // ISO
+  updatedOn?: string | null; // ISO
+}
+
+/**
+ * ADDED: Matches the JSON response from /company/CompanyById
+ */
+export interface CompanyLiteDto {
+  companyId: number;
+  businessId: number;
+  companyName: string;
+  state: string;
+  city: string;
+  zipCode: string;
+  country: string;
+  tradeName: string;          // Maps to Service/Industry
+  companyEffectiveDate: string; // "YYYY-MM-DD"
+  loginUser: {
+    loginUserId: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string;
+  };
+}
+
+export interface BusinessOwnerDto {
+  ownerId?: number | null;
+  firstName: string;
+  lastName: string;
+  personalEmail: string;
+  contactNumber: string;
+  createdOn?: string | null; // ISO
+}
+
+export interface BusinessRegistrationDto {
+  owner: BusinessOwnerDto;
+  business: BusinessDto;
+}
+
+// Weighted (NLP) search response item
+export interface WeightedBusinessHitDto {
+  business: BusinessDto;
+  score: number;
+  wordWeights: Record<string, number>;
+  fieldWeights: Record<string, number>;
+}
+
+// Audit clicks
+export interface AuditClickRequestDto {
+  businessId: number;
+  ownerId?: number | null;
+  sessionId: string | null;
+}
+
+export interface AuditClickResponseDto {
+  id: number;
+  businessId: number;
+  ownerId?: number | null;
+  sessionId: string | null;
+  occurredAt: string; // ISO
+  deduped: boolean;
+}
+
+export interface AuditClickStatsDto {
+  today: number;
+  last7d: number;
+  last30d: number;
+  allTime: number;
+}
+
+// Business image DTO (record)
+export interface BusinessImageDto {
+  imageId: number;
+  key: string;
+  size: number;
+  lastModified: string;
+  eTag: string;
+}
+
+// Business Services
+export interface BusinessServiceDto {
+  serviceId: number;
+  serviceName: string;
+  description?: string | null;
+}
+
+// If your projection returns "serviceId" + "serviceName", we just reuse BusinessServiceDto.
+export type ServiceIdName = BusinessServiceDto;
+
+// === Frontend view models (light) ===
+export interface CategoryVM {
+  id: number;         // serviceId
+  name: string;       // serviceName
+}
+
+// --- Company Filter DTOs (UPDATED) ---
+// --- Company Filter DTOs ---
+export interface CompanySlim {
+  companyId: number;
+  companyName: string;
+  state?: string | null;
+
+  // ✅ NEW (must come from backend /company/filter)
+  businessId?: number | null;
+  businessUpdatedBy?: string | null; // e.g., "admin" | "self" | null
+}
+
+export interface CompanyFilterResponse {
+  content: CompanySlim[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+}

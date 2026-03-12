@@ -1,0 +1,19 @@
+<div class="category-filter">
+      <div class="category-scroll">
+        <button
+          class="category-chip"
+          [class.active]="selectedCategory === null"
+          (click)="selectCategory(null)"
+        >
+          All Topics
+        </button>
+        <button
+          *ngFor="let category of categories"
+          class="category-chip"
+          [class.active]="selectedCategory === category"
+          (click)="selectCategory(category)"
+        >
+          {{ category }}
+        </button>
+      </div>
+    </div>

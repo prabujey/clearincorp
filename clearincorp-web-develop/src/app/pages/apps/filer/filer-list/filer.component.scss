@@ -1,0 +1,256 @@
+@use 'src/variables' as *;
+
+
+// Base colors for statuses
+$success-color: #28a745;  // Green for saved, success
+$warning-color: #ffc107;  // Yellow for reviewed
+$info-color: #17a2b8;     // Blue for ready to file
+$secondary-color: #6c757d; // Grey for filled
+$danger-color: #dc3545;    // Red for fail
+$dark-color: #343a40;      // Dark color for Ein
+
+// Utility classes for status cards
+.bg-light-success {
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+.bg-light-warning {
+  background-color: rgba(255, 193, 7, 0.1);
+}
+
+.bg-light-info {
+  background-color: rgba(23, 162, 184, 0.1);
+}
+
+.bg-light-secondary {
+  background-color: rgba(108, 117, 125, 0.1);
+}
+
+.bg-light-danger {
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.bg-light-dark {
+  background-color: rgba(52, 58, 64, 0.1);
+}
+
+// Text color classes for different statuses
+.text-success {
+  color: $success-color;
+}
+
+.text-warning {
+  color: $warning-color;
+}
+
+.text-info {
+  color: $info-color;
+}
+
+.text-secondary {
+  color: $secondary-color;
+}
+
+.text-danger {
+  color: $danger-color;
+}
+
+.text-dark {
+  color: $dark-color;
+}
+      /* Container for both filters */
+.state-search-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;              // space between the two fields
+  max-width: 0;          // start collapsed
+  overflow: hidden;
+  opacity: 0;
+  transition: 
+    max-width 0.3s ease, 
+    opacity    0.3s ease;
+
+  
+
+  &.show-state-search {
+    max-width: 420px;    // ~ 200px + 200px + 8px gap + padding if any
+    opacity: 1;
+    overflow: visible;
+  }
+}
+
+/* If you still need the search-field transition from before */
+.search-field {
+  transition: opacity 0.2s ease-in-out;
+  opacity: 1;
+}
+
+/* Mobile tweaks */
+@media (max-width: 768px) {
+  .state-search-container.show-state-search {
+    max-width: 300px;    // shrink for smaller screens
+  }
+
+  .search-field {
+    margin-bottom: 16px;
+  }
+}
+
+/* Rotate icon when active */
+.settings-icon {
+  transition: transform 0.3s ease-in-out;
+
+  &.active {
+    transform: rotate(180deg);
+  }
+}
+
+/* Horizontal status strip for desktop */
+.status-strip {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px; // small space so shadow doesn't clip
+
+  /* optional: smooth scroll on horizontal drag */
+  scroll-behavior: smooth;
+}
+
+/* Status Cards – styled similar to invoice-tab */
+.status-card {
+  cursor: pointer;
+  flex: 0 0 225px;        // same as your min-width
+  border-radius: 8px;
+  background: #ffffff;
+  border: 2px solid transparent;
+  box-shadow: none;
+ transition: box-shadow 0.25s ease,
+              background 0.25s ease,
+              border-color 0.25s ease;
+
+  &:hover {
+    transform: translateY(2px);
+    box-shadow:  0px 12px 25px rgba(15, 23, 42, 0.12);
+    border-color: $primary-color;
+    background: #f9f9f9;
+    z-index: 2;
+  }
+
+  mat-card-content.status-card-content {
+    padding: 12px 16px !important;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .status-count {
+    margin: 0 0 4px 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .status-label {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4b5563;
+  }
+}
+
+.status-card.active-status-card {
+  background: #f8fafc !important;
+  border-color: $primary-color !important;
+}
+
+
+.expedited-toggle {
+  display: inline-flex;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.expedited-toggle .toggle-btn {
+  border: none;
+  background: transparent;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #4b5563;
+  cursor: pointer;
+  min-width: 0;
+  white-space: nowrap;
+
+  &:first-child {
+    border-right: 1px solid #e5e7eb;
+  }
+
+  &:hover {
+    background-color: #f9fafb;
+  }
+
+  &.active {
+    background-color: #bf0a30; // or use your $primary-color
+    color: #ffffff;
+  }
+}
+
+.empty-state-card {
+        max-width: 520px;
+        margin: 0 auto;
+        padding: 20px 24px;
+        border-radius: 16px;
+        background: transparent;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .empty-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+        background: rgba(239, 68, 68, 0.08); // soft warn background
+
+        mat-icon {
+          font-size: 22px;
+          width: 22px;
+          height: 22px;
+          color: #ef4444; // warn red
+        }
+      }
+
+      .empty-title {
+        margin: 0 0 4px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #111827;
+      }
+
+      .empty-text {
+        margin: 0 0 14px 0;
+        font-size: 13px;
+        line-height: 1.5;
+        color: #6b7280;
+      }
+
+      .empty-action-btn {
+        margin-top: 4px;
+        padding: 6px 18px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 500;
+        text-transform: none;
+      }
+

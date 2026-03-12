@@ -1,0 +1,96 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+  mail:
+    host: smtp.zeptomail.com
+    port: 587
+    username: ${PROD_EMAIL_USERNAME}
+    password: ${PROD_EMAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.connectiontimeout: 10000
+      mail.smtp.timeout: 10000
+      mail.smtp.writetimeout: 10000
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  main:
+    allow-bean-definition-overriding: true
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: false
+        id:
+          new_generator_mappings: false
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    org.hibernate.SQL: OFF
+    org.hibernate.type.descriptor.sql.BasicBinder: OFF
+    edu.stanford.nlp: ERROR
+    e.stanford: ERROR
+
+app:
+  datasource:
+    jdbcUrl: "jdbc:mysql://${PROD_DB_HOSTNAME}:${PROD_DB_PORT}/llc?useSSL=false&serverTimezone=UTC"
+    userName: ${PROD_DB_USERNAME}
+    password: ${PROD_DB_PASSWORD}
+    poolSize: 5
+    idleTime: 1080000
+    maxLifeTime: 1200000
+    connectionTimeout: 2000000
+    poolName: "HIKARI-CP"
+    hikari:
+      max-lifetime: 600000  # 10 minutes
+      connection-timeout: 30000  # 30 seconds
+      validation-timeout: 3000
+
+server:
+  port: 8080
+  error:
+    include-message: always
+
+aws:
+  accessKeyId: ${PROD_AWS_ACCESS_KEY_ID}
+  secretAccessKey: ${PROD_AWS_SECRET_ACCESS_KEY}
+  region: ${PROD_AWS_REGION}
+  s3:
+    marketplace-bucket: ${PROD_MARKETPLACE_BUCKET}
+    bucket-name: ${PROD_SERVICE_DOC_BUCKET}
+  cognito:
+    user-pool-id: ${PROD_COGNITO_USER_POOL_ID}
+    client-id: ${PROD_COGNITO_CLIENT_ID}
+    client-secret: ${PROD_COGNITO_CLIENT_SECRET}
+    hmac-algorithm: ${PROD_COGNITO_ALGORITHM}
+    default-password: ${PROD_COGNITO_DEFAULT_PASSWORD}
+
+stripe:
+  secretKey: ${PROD_STRIPE_SECRET_KEY}
+  publicKey: ${PROD_STRIPE_PUBLIC_KEY}
+
+gemini:
+  api:
+    key: ${PROD_GEMINI_API_KEY}
+    url: ${PROD_GEMINI_API_URL}
+
+frontend:
+  origin:
+    cloudFront: "https://clearincorp.com"
+    allowedOrigin: ${PROD_ALLOWED_ORIGIN}
+
+crypto:
+  kms:
+    cmk-arn: ${PROD_KMS_CMK_ARN}

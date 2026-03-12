@@ -1,0 +1,455 @@
+Content for RAG Chatbot System
+ClearIncorp Dashboard - Complete Features and Logic
+1. Dashboard Overview
+The Dashboard is the user's primary control center for managing their LLC formations. It provides a complete overview of all their businesses, which are automatically sorted into two distinct categories: "In Progress" and "Completed." The information on this screen is kept current through automatic, periodic updates from the server. The layout and data, including the user's last selected company, are saved so the view remains consistent between visits.
+The dashboard also features a "Quick Actions" section to provide users with direct links to other important areas. These actions include:
+* Starting a new LLC application.
+* Accessing business documents.
+* Viewing billing and invoices.
+* Managing account settings.
+2. Resuming an In-Progress LLC Application
+The system is designed to allow users to seamlessly continue an application exactly where they left off, ensuring no loss of progress.
+* How it Works: When a user chooses to continue an in-progress formation, the system conducts a thorough analysis of all the data saved for that company. It performs a detailed check of every piece of required information—from basic business details to management structure—to identify the very first step that has not been fully completed.
+* User Experience: The user is taken directly to the specific form or section that needs to be completed next. This allows them to bypass all the steps they have already finished and resume their application efficiently.
+3. Viewing Completed LLCs
+Users can access a detailed, read-only summary of their successfully formed LLCs at any time from the dashboard.
+* How it Works: When a user requests to view a completed LLC, the system retrieves the full, detailed record for that specific company and displays it in a pop-up summary.
+* Information Displayed: The information is presented in two main parts:
+   * Business Details: This section contains:
+      * Company Name
+      * State of Formation
+      * Formation Date
+      * Trade Name (if any)
+      * Principal Business Activity
+      * Primary Contact: First Name, Last Name, Email, and Phone Number
+      * Registered Agent: Full address including street, city, state, and zip code.
+   * Management & Ownership: This section shows:
+      * Management Style: Clearly states if the LLC is "Manager-managed" or "Member-managed".
+      * Manager Details: For manager-managed LLCs, it lists each manager's First Name, Last Name, Email, and Phone Number.
+      * Ownership Member Details: It lists each member's First Name, Last Name, Email, Phone Number, and their specific ownership percentage.
+      * Tax Information: The SSN, ITIN, or EIN for the member designated as the responsible party for tax purposes.
+      * Official Business Address: The full business address including street, city, state, and zip code.
+4. Dynamic Sidebar and Progress Tracking
+The sidebar on the dashboard provides a real-time, detailed summary of a single company's formation progress.
+* How it Updates: The sidebar's content changes instantly when the user either hovers their mouse over a company card or clicks on it. This allows for a quick glance at a company's status without navigating away from the dashboard.
+* Information Shown: The sidebar displays the following:
+   * The name of the company being viewed.
+   * A visual circular progress meter showing the completion percentage.
+   * A checklist of the four major formation milestones:
+      1. Business Details
+      2. Registered Agent
+      3. Payment Processing
+      4. Formation Complete
+   * A "Next:" field that describes the immediate next action required, which can be one of the following: "Provide Business Information," "Boost your LLC with extra services," "Finalize Your Payment," or "Pick the power that leads your LLC."
+5. Company Statuses Explained
+Completed LLCs are assigned an administrative status that reflects their precise standing in the official filing process. The system displays this as a clear, color-coded badge on the company card.
+* How it Works: The system receives a status from the backend and translates it into a user-friendly term. The possible statuses and their meanings are:
+   * Under Review: The application has been saved and is pending internal review.
+   * Verified: The application details have been successfully reviewed and verified by our team.
+   * Ready for Filing: The verified application is prepared and queued for submission to the state.
+   * Submitted: The application has been officially filed with the state.
+   * Active LLC: The state has approved the formation, and the LLC is now an active, legal entity.
+   * Update Required: The filing was rejected by the state, and the user needs to provide updated information.
+   * Pending: The application is in a transitional state not covered by the statuses above.
+Account Settings - Complete Features and Logic
+1. Overview
+The "Account Settings" page is where users manage their personal profile information and customize their profile picture. The screen is divided into two main sections: one for editing personal details like name and phone number, and another for uploading and managing a profile image. All changes made on this page are saved together when the user clicks the "Save Profile" button.
+2. Managing Personal Information
+This section allows users to keep their contact details up to date. The system has specific rules for each field.
+* First Name:
+   * This field is required.
+   * It only accepts letters and spaces. Numbers or special characters are not allowed.
+* Last Name:
+   * This field is required.
+   * It only accepts letters and spaces.
+* Email Address:
+   * This field is for display purposes only and appears grayed out.
+   * The user's email address cannot be changed from this screen.
+* Phone Number:
+   * This field is optional.
+   * If a phone number is entered, it must follow the format (123) 456-7890.
+3. Managing the Profile Picture
+Users can upload, edit, and reset their profile picture.
+* Uploading a New Image:
+   * Users can click the "Upload Image" button to open their device's file selector.
+   * The system enforces strict file requirements. An error message will be displayed if the file is not valid.
+   * Allowed File Types: JPG and PNG.
+   * Maximum File Size: 5MB.
+* Editing an Existing Image:
+   * If a profile picture is already set, hovering over it reveals an "Edit" option.
+   * Clicking "Edit" opens a dedicated image editor tool in a pop-up window where the user can make adjustments.
+* Resetting the Image:
+   * The "Reset" button allows users to remove their current profile picture entirely.
+   * This action will revert the image to the default placeholder icon.
+4. The Image Editor Tool
+When a user chooses to edit their profile picture, a powerful image editor tool appears in a pop-up window. This tool provides several ways to customize the image before saving.
+* Capabilities of the Editor:
+   * Cropping: Users can select a specific portion of their image to use as their profile picture.
+   * Crop Shape: The tool allows users to toggle the crop area between a Circular shape and a Square shape.
+   * Zoom: A zoom slider is available to magnify or shrink the image within the crop area, allowing for precise framing. The zoom level can be adjusted from 10% to 500%.
+   * Rotation: The image can be rotated 90 degrees to the left or right with dedicated buttons.
+* Applying Changes:
+   * After making adjustments, the user must click the "Apply Changes" button to confirm them. Clicking "Cancel" will close the editor without saving any of the image modifications.
+5. Saving and Navigation
+The page includes specific logic for saving changes and navigating away.
+* Saving Profile:
+   * The "Save Profile" button validates all the information on the page. If any required fields (like First Name or Last Name) are empty or incorrect, the button will be disabled.
+   * When clicked, it saves all personal information and the updated profile picture simultaneously. A confirmation message will appear indicating whether the update was successful.
+* The Cancel Button:
+   * The "Cancel" button allows users to exit the page without saving any of their changes.
+   * There is a specific rule for when this button is visible: The "Cancel" button is hidden for new users who have not yet set up a company AND have not yet filled in their first and last names. For all other users, the button is visible.
+Document Management System - Complete Features and Logic
+1. Overview
+The Document Management System is a centralized platform for accessing and managing company-related documents. The system provides a significantly different experience based on the user's role, which is either Consumer (the end-user who owns the companies) or Administrator (a privileged user who manages the system).
+2. The Consumer (User) Experience
+The interface for consumers is designed for easy access and tracking of their own documents.
+* Dashboard View and Filtering:
+   * The main view is organized into clear, clickable tabs that act as quick filters for different document categories. The available tabs are:
+      * All Documents
+      * Articles of Organization
+      * Formation Document
+      * Ein Documents
+   * Users can further refine the list by searching for a specific company name or filtering by the company's state of jurisdiction. All searching and filtering happens instantly without reloading the page.
+* The Document List:
+   * For consumers, the document list displays the following information for each company:
+      * Company: The name of the LLC.
+      * Jurisdiction: The state where the company was formed.
+      * Uploaded On: The date the document was made available.
+      * Type: The specific type of document (e.g., Articles of Organization).
+      * View: An action button to open and view the document.
+      * Status: A status indicator that shows whether the document has been "Viewed" or is "Not Viewed."
+* Status Tracking:
+   * The "Status" column provides at-a-glance tracking. When a user opens a document for the first time, its status automatically updates from "Not Viewed" to "Viewed."
+* Primary Action (Viewing a Document):
+   * The main interaction for a consumer is to click the "View" icon for a company. This action retrieves the specific document from the server and opens it in the pop-up Document Viewer.
+3. The Administrator (Admin) Experience
+The interface for administrators is a powerful tool designed for managing the entire document repository, not just a single user's files.
+* Dashboard View:
+   * Admins see a single, comprehensive table containing all documents in the system. There are no filter tabs.
+   * The system uses server-side pagination, meaning admins can efficiently browse through thousands of records page by page without having to load them all at once.
+* Advanced Filtering and Searching:
+   * Admins have more powerful search tools. They can search by company name and use advanced, toggleable filters to narrow down the results by:
+      * State / Jurisdiction
+      * Document Type
+   * Each time a filter or search is applied, the system fetches a new, updated list of results from the server. A "Clear Filters" button is available to reset the view.
+* The Document List:
+   * For administrators, the document list is focused on management and displays the following columns:
+      * Company: The name of the LLC.
+      * Jurisdiction: The state where the company was formed.
+      * Uploaded On: The date the document was made available.
+      * Type: The specific type of document.
+      * Action: A set of administrative tools (icons for editing and deleting document records).
+* Primary Actions (Managing Documents):
+   * The "Action" column allows administrators to perform management tasks, such as adding a new document, editing an existing document's metadata, or deleting a document record from the system.
+4. The Document Viewer (Shared Feature)
+When a document is opened by either a Consumer or an Administrator, it appears in a shared, consistent Document Viewer pop-up window.
+* Purpose: The viewer's sole function is to provide a clear and interactive preview of the PDF document.
+* Header Information: To avoid confusion, the header of the viewer window always displays the Company Name and the Document Type being viewed.
+* Available Actions: Within the viewer, all users have three actions available:
+   * Download: Saves a copy of the PDF document directly to the user's computer. The saved file is automatically named in the format CompanyName_DocumentType.pdf.
+   * Print: Opens the browser's standard print dialog, allowing the user to print a physical copy of the document.
+   * Close: Exits the Document Viewer and returns the user to their document list.
+Invoice Management System - Complete Features and Logic
+1. Overview
+The Invoice Management System provides a centralized platform for viewing and managing invoices. The system is role-based and offers two distinct experiences: one for Consumers (Users), who can view and manage their own invoices, and one for Administrators, who have oversight and management capabilities over all invoices in the system.
+2. The Consumer (User) Experience
+The interface for Consumers is designed for clarity and ease of use, allowing them to track their own billing history.
+* Invoice List View:
+   * Dashboard and Filtering: The main view features clickable tabs that act as quick filters for invoices based on their status. The available filter tabs are:
+      * Total
+      * Shipped
+      * Delivered
+      * Pending
+   * Finding Invoices: A search bar allows Consumers to find specific invoices by searching for company names. All filtering and searching happens instantly on the user's list of invoices without reloading the page.
+   * The Invoice Table: The table displays a summary of each invoice with the following columns:
+      * Invoice: The unique identifier for the invoice.
+      * Due Paid: The date of the invoice order.
+      * Company: The name of the company being billed.
+      * Total Cost: The grand total of the invoice amount.
+      * Status: A color-coded badge indicating the current status (e.g., Shipped, Pending, succeeded).
+      * Action: A single action is available for each invoice.
+   * Primary Action (Viewing): The only action available in the list is a "View" icon. Clicking this takes the user to a detailed view of that specific invoice.
+* Invoice Detail View:
+   * When a Consumer views an individual invoice, they see a complete breakdown of the charges and details.
+   * Key Action (Editing): On this detailed view page, the Consumer is presented with an "Edit Invoice" button, allowing them to make changes to the invoice.
+3. The Administrator (Admin) Experience
+The interface for Administrators is a powerful management tool for overseeing all invoices across the entire platform.
+* Invoice List View:
+   * Dashboard: The Admin dashboard is a single, comprehensive table of all system invoices. It does not use filter tabs; instead, it relies on powerful search and pagination.
+   * Data Handling: To manage potentially large numbers of invoices, the system uses server-side pagination. Data is loaded one page at a time, ensuring the interface remains fast and responsive.
+   * Finding Invoices: The search bar allows Admins to query the entire database of invoices. Each search is a new request to the server to fetch matching results.
+   * The Invoice Table: The Admin table provides more detailed information and includes the following columns:
+      * Id: The internal database ID of the invoice record.
+      * Invoice: The unique identifier for the invoice.
+      * Due Paid: The date of the invoice order.
+      * Company: The name of the company being billed.
+      * Total Cost: The grand total of the invoice amount.
+      * Status: A color-coded badge for the invoice status.
+      * Action: A set of management tools for each invoice.
+   * Primary Actions (Management): For each invoice in the list, Administrators have three available actions:
+      * Edit: An icon to edit the invoice details.
+      * View: An icon to navigate to the detailed invoice view.
+      * Delete: An icon to permanently delete an invoice. This action requires confirmation in a pop-up dialog before proceeding.
+* Invoice Detail View:
+   * Administrators can also access the full detail page for any invoice.
+   * Key Action (Downloading): From the detail view, an Admin has a "Download" button. This action generates a PDF copy of the invoice and downloads it to their computer.
+4. The Invoice Detail View (Shared Information)
+When an invoice is viewed by either a Consumer or an Administrator, the information presented on the detail page is consistent and comprehensive.
+* Purpose: To provide a complete, itemized, and easy-to-read record of a single transaction.
+* Information Displayed:
+   * Order Details: Includes the Order ID, the current Order Status, and the Order Date.
+   * Bill From: Shows the sender's details, including their Name, Email, Address, and Phone number.
+   * Bill To: Shows the recipient's details, including their Name, Email, Address, and Phone number.
+   * Itemized List: A detailed table breaks down all charges with the following columns:
+      * Item Name
+      * Unit Price
+      * Unit (quantity)
+      * Total Cost (for that line item)
+   * Grand Total: The final, total amount for the invoice is displayed prominently at the bottom.
+Administrator User Management Features and Logic
+1. Overview and Access
+The User Management module is a feature available exclusively to Administrators. Its purpose is to create, view, edit, and delete other administrative user accounts, which are assigned either a "SuperFiler" or a "Vendor" role.
+2. The All Users List
+The main dashboard for user management provides administrators with tools to view and manage all SuperFiler and Vendor accounts.
+* Dashboard Summary:
+   * The top of the page features three clickable summary cards that filter the user list below.
+   * The cards display counts for Total Users, Vendors, and SuperFilers.
+* Finding and Adding Users:
+   * A search bar provides an instant, client-side text filter on the user list.
+   * An "Add" button allows the administrator to navigate to a blank form to create a new user account.
+* The User Table:
+   * The table lists all administrative users with the following details: Email, First Name, Last Name, Phone, and Role.
+   * An "Action" column provides management tools for each user.
+* Available Actions:
+   * Edit: Clicking the pencil icon takes the administrator to a form pre-filled with the selected user's information for modification.
+   * Delete: Clicking the trash icon prompts the administrator with a confirmation dialog before permanently removing the user account.
+3. The Add/Edit User Form
+The Add/Edit User form is a dynamic page for both creating and modifying SuperFiler and Vendor accounts.
+* Role Selection:
+   * The first and most important field is the "Role" dropdown, which is required.
+   * The administrator must select either "SuperFiler" or "Vendor," and this choice dynamically changes the required fields on the form.
+* Standard Information (Required for All Roles):
+   * Role: Must be selected from the dropdown.
+   * First Name & Last Name: These fields are required and must contain only letters and spaces.
+   * Phone: A contact phone number is required and must be in the (123) 456-7890 format.
+   * Email: A valid email address is required.
+   * Profile Image: A profile picture can be uploaded for both SuperFiler and Vendor roles.
+* Vendor-Specific Information (Required only for the Vendor role):
+   * When "Vendor" is selected as the role, an additional set of fields appears and becomes required.
+   * EIN: The vendor's Employer Identification Number must be in the XX-XXXXXXX format.
+   * Vendor Name: The legal name of the vendor's business is required.
+   * Vendor Contact Number: A specific contact number for the vendor is required in the (123) 456-7890 format.
+   * Vendor Email: A valid email address for the vendor business is required.
+   * Full Address: The vendor's complete physical address is required, including Address, City, Country, State (must be a 2-letter code), and ZIP (must be a 5-digit code).
+   * Alternative Name: An optional field is also available to list another business name for the Vendor.
+* Saving Changes:
+   * The form can only be submitted when all required fields for the selected role are filled out correctly.
+   * The submit button is labeled "Add User" for new accounts and "Update User" when editing an existing account. Upon a successful submission, the administrator is automatically returned to the user list.
+SuperFiler Processing Workflow - Complete Features and Logic
+1. Overview and Access
+This module is an advanced workflow designed exclusively for users with the SuperFiler role. Its purpose is to provide a structured process for SuperFilers to review, correct, process, and finalize LLC formation applications that have been submitted by consumers.
+2. The SuperFiler Dashboard (Work Queue)
+The main dashboard acts as a work queue, organizing all formation applications by their current processing status.
+* Status Filters:
+   * The top of the page features clickable summary cards that filter the application list below. The available statuses are:
+      * Saved (This is the default view)
+      * Reviewed
+      * Ready to File
+      * Filed
+      * Success
+      * Failure
+* Finding Applications:
+   * A primary search bar allows searching for applications by Company Name.
+   * An additional, toggleable filter allows for searching by State / Jurisdiction.
+   * All searching and filtering is handled by the server to efficiently manage a large volume of applications. A "Clear Filters" button is available to reset all criteria.
+* The Application List:
+   * The main table lists applications waiting for processing and displays the following columns: Company, State, Date, Status, and Process.
+   * Companies that have paid for priority processing are clearly marked with a gold star icon for expedited service.
+Primary Action: Processing an Application
+* The main action on the SuperFiler Dashboard is to begin processing a company's application by clicking the "Process" (forward arrow) icon for that company in the list.
+* Clicking this icon launches the multi-step Filer Wizard, which is the dedicated tool for reviewing, editing, and finalizing the application.
+* The system intelligently directs the SuperFiler to the correct starting point in the workflow to ensure efficiency. It does this by:
+   1. Identifying the application's current status (such as 'Saved', 'Reviewed', or 'Ready to File') from the dashboard list.
+   2. Fetching the complete, detailed data for that specific company application.
+   3. Calculating the exact step number within the wizard where work needs to resume based on that status and the company's specific details (like whether it is manager- or member-managed).
+* The Filer Wizard then opens and automatically navigates directly to that calculated step. This allows the SuperFiler to bypass all previously completed stages and continue the process from the most logical point. For example, a 'Saved' application will start the wizard at the beginning (Company Details), while a 'Reviewed' application will start much further along in the process.
+3. The Filer Wizard - Review and Edit Workflow
+The Filer Wizard is a comprehensive, multi-step interface for processing a single LLC formation application.
+* Reviewing and Correcting Data:
+   * The wizard displays all data submitted by the consumer, organized into sections like Business Details, Primary Contact, Managers, Members, Business Address, and Registered Agent.
+   * Each section has an "Edit" button that unlocks the fields, allowing the SuperFiler to make necessary corrections.
+   * When editing, all fields are subject to strict validation rules, such as names only accepting letters or phone numbers requiring a specific format.
+* Change Notes (Audit Trail):
+   * This is a critical feature for maintaining an audit trail. If a SuperFiler edits any information, they are required to provide a clear explanation in the "Change Notes" text box.
+   * The "Save" button remains disabled until change notes are entered, ensuring that every modification is documented.
+* Registered Agent Feature:
+   * The wizard includes a special "Use company registered address" toggle for the Registered Agent section.
+   * When enabled, this feature automatically fetches and fills in the details of the official, company-provided registered agent for that state. This action saves immediately and locks the fields from further manual editing to ensure accuracy.
+4. The Filer Wizard - Document and Filing Workflow
+After the data has been reviewed and corrected, the workflow proceeds to the official filing stages.
+* Document Preview:
+   * Once the data is finalized, the SuperFiler can proceed to the next step, where the system generates a PDF preview of the official Articles of Organization document.
+   * The SuperFiler can download or print this document directly from the preview screen.
+* Entering Filing Data:
+   * In the "Ready to File" step, the SuperFiler must enter the official details of the state filing transaction. The following fields are mandatory:
+      * Filed Date: The exact date the document was submitted to the state.
+      * Payment Method: The method used for payment (e.g., Credit Card, Bank Transfer).
+      * Payment Amount: The total amount paid.
+      * Transaction ID: The official transaction code from the payment.
+      * Payer Name: The name of the person or entity who paid.
+5. The Filer Wizard - Finalizing the Process
+The final step in the workflow is to record the outcome of the state filing.
+* Final Status Update:
+   * The SuperFiler must update the application's status to either Success or Failure. The subsequent steps change based on this selection.
+* Success Workflow:
+   * If the filing was successful, the SuperFiler must select the final document type (e.g., "Formation Document") from a dropdown list.
+   * They are then required to upload the official, state-approved PDF document.
+   * The uploaded file must be a PDF and its size cannot exceed 5MB.
+   * A final confirmation checkbox must be ticked before the process can be finished.
+* Failure Workflow:
+   * If the filing failed, the SuperFiler must complete a detailed failure report. This report requires:
+      * Selecting a Failure Category from a predefined list.
+      * Writing a detailed Failure Reason.
+      * Describing the Recommended Next Steps to resolve the issue.
+SuperFiler Document Management (Post-Filing) - Complete Features and Logic
+1. Overview and Access
+This document describes the Document Management module, a feature available exclusively to SuperFilers. Its purpose is to provide a centralized platform for uploading and viewing the final, official documents for LLCs whose formation has already been marked as "Success".
+2. The Successful Filings Dashboard
+This dashboard is the main interface for this workflow, providing a list of all successfully filed companies that are ready for document management.
+* Purpose: This view is dedicated to listing only companies with a "Success" status. SuperFilers use this screen to access the document tools for each completed formation.
+* Finding Companies: A search bar allows for finding companies by name, and a toggleable filter provides an option to filter the list by State/Jurisdiction. All searching and filtering is handled by the server to efficiently manage a large number of records.
+* The Company List: The table displays a summary of each successful company with the following columns: Company, State, Date, Status, and Action.
+* Available Actions: For each company in the list, a SuperFiler has two primary actions available:
+   * Upload Documents: Clicking the upload icon opens the Upload Form, allowing the SuperFiler to add new official documents for that company.
+   * View Documents: Clicking the view icon opens the Document Viewer, allowing the SuperFiler to see any documents that have already been uploaded for that company.
+3. The Upload Form
+This is a pop-up dialog dedicated to uploading official PDF documents for a selected company. The process follows a clear, multi-step validation workflow.
+* Step 1: Select Document Type: The SuperFiler must first choose the type of document they are uploading from a dropdown list.
+* Conditional EIN Document: There is a specific rule for EIN documents: The "EinDocument" option is only available in the dropdown list if the company was previously flagged as needing an EIN. If not, this option is hidden.
+* Step 2: Add a File: The SuperFiler can either drag-and-drop a PDF file into the designated area or click the "Select File" button to browse their computer.
+* File Requirements: The system enforces the following validation rules on all uploaded files:
+   * Allowed File Type: Only PDF files are accepted.
+   * Maximum File Size: The file size cannot exceed 5MB.
+* Step 3: Confirm Accuracy: After a file is selected, the "Upload" button remains disabled until the SuperFiler ticks a confirmation checkbox. This checkbox verifies that the selected file is the correct document for the chosen document type.
+* Step 4: Upload: Clicking the "Upload" button sends the confirmed file to the server to be stored with the company's records.
+4. The Document Viewer
+This is a pop-up dialog for viewing a company's existing official documents.
+* Step 1: Select Document to View: The viewer opens with a dropdown menu listing the available document types for that company. The SuperFiler must select a document type from this list to load and view it.
+* Conditional EIN Document (Viewing): Similar to the upload form, the "EinDocument" will not appear in this list of viewable documents if the company was not flagged as needing an EIN during its formation process.
+* Display and Errors: Once a document type is selected, the system fetches the corresponding PDF from the server and displays it in an embedded viewer. If the document cannot be found or fails to load, a clear error message is shown to the SuperFiler ("File not available or failed to load").
+* Available Actions in Viewer: The viewer provides the following actions for the currently displayed document:
+   * Download: Saves a copy of the PDF to the SuperFiler's computer. The filename is automatically standardized to the format CompanyName_DocumentType.pdf.
+   * Close: Exits the Document Viewer and returns to the dashboard.
+SuperFiler EIN Document Workflow - Complete Features and Logic
+1. Overview and Access
+This document describes the EIN Document module, a feature available exclusively to SuperFilers. Its purpose is to provide a dedicated work queue for accessing and tracking the viewing status of official Employer Identification Number (EIN) documents for companies that require them.
+2. The EIN Dashboard
+This dashboard is the main interface for this workflow, providing a list of all companies that have been flagged for EIN processing.
+* Purpose: The dashboard functions as a work queue, listing all companies that require EIN document attention.
+* Finding Companies: SuperFilers can find specific companies using server-side tools that ensure fast performance even with a large number of records.
+   * Search by Company Name: A search bar is available to find companies by name. Entering a name and pressing Enter sends a new search request to the server.
+   * Filter by State: A filter icon reveals an additional search field for State/Jurisdiction. Selecting a state also triggers a new search on the server to retrieve matching companies.
+   * Clearing Filters: A "Clear Filters" button appears when any search or filter is active, allowing the SuperFiler to reset the view.
+* The Company List: The table displays a summary of each company with the following columns: Company, State, View, and Status.
+* Status Tracking: A dedicated Status column tracks whether the EIN document for a company has been opened. It displays one of two states:
+   * Not Viewed: The initial status for a company's EIN document.
+   * Viewed: The status after a SuperFiler has opened the document.
+* Primary Action (Viewing the EIN Document): The main interaction is to click the "View" (visibility) icon for a specific company in the list.
+3. The EIN Document Viewer
+Clicking the "View" icon initiates a process to securely fetch and display the company's official EIN document.
+* Process: The system retrieves the specific EIN document file for the selected company from the server and opens it in a dedicated pop-up viewer.
+* Viewer Features: The viewer window is designed for clarity and functionality. The header clearly displays the Company Name and the document type, which is always "EIN" in this workflow.
+* Available Actions in Viewer: The SuperFiler has three actions available for the displayed document:
+   * Download: Saves a copy of the EIN document to the SuperFiler's computer. The filename is automatically standardized to CompanyName_EIN.pdf.
+   * Print: Opens the browser's standard print dialog for the document.
+   * Close: Exits the document viewer.
+* Automatic Status Update: When the viewer is closed (either by clicking the "Close" button or the 'X' icon), it automatically signals that the document has been seen. This action immediately updates the status for that company on the main dashboard from "Not Viewed" to "Viewed".
+Vendor: Consumer Account Management - Complete Features and Logic
+1. Overview and Access
+This document describes the Consumer Management module, a feature available exclusively to administrative roles like the Vendor. Its purpose is to allow Vendors to manage the full lifecycle of Consumer accounts, including creating, viewing, editing, and deleting them.
+2. The Consumer List Dashboard
+This is the central dashboard where a Vendor can see and manage a complete list of all Consumer accounts in the system.
+* Finding Consumers: A search bar is provided at the top of the page. It allows the Vendor to instantly filter the list by typing any part of a Consumer's information.
+* The Consumer Table: The main table provides a list of all consumers with the following details for each:
+   * Email
+   * First Name
+   * Last Name
+   * Phone
+   * Role (This will always be "Consumer")
+   * Action
+* Available Actions: For each Consumer in the list, a Vendor has two available actions:
+   * Edit: Clicking the pencil icon takes the Vendor to a form pre-filled with that Consumer's information, allowing for modifications.
+   * Delete: Clicking the trash icon prompts the Vendor with a confirmation pop-up before permanently removing the Consumer's account from the system.
+* Adding a New Consumer: An "Add Consumer" button is available that navigates the Vendor to a blank form to create a new Consumer account.
+3. Add/Edit Consumer Form
+This form is used by the Vendor for both creating new Consumer accounts and modifying existing ones.
+* Form Fields and Rules: The form requires the following information to be filled out according to specific rules:
+   * Role: This field is automatically set and locked to "Consumer".
+   * First Name & Last Name: These fields are required and must contain only letters and spaces.
+   * Phone: A contact phone number is required and must be in the (123) 456-7890 format.
+   * Email: A valid email address is required.
+   * Profile Image: An optional profile image can be uploaded for the Consumer account.
+* Saving Changes: The form can only be submitted when all required fields have been filled out correctly. The submit button is labeled "Add Consumer" for new accounts and "Update Consumer" when editing an existing account. Upon a successful submission, the Vendor is automatically returned to the main Consumer list dashboard.
+
+
+LLC Formation Wizard - Complete Features and Logic
+This document outlines the complete functionality of the multi-step LLC Formation Wizard, a tool designed to guide consumers through the process of creating a new Limited Liability Company.
+________________
+
+
+1. Overview and Initialization
+The Formation Wizard is a multi-step process that collects all necessary information to form an LLC. It is designed to be user-friendly, saving progress at each step and allowing users to resume an incomplete application.
+* Starting a New Application: When a user starts a new LLC formation, they begin at the first step.
+* Resuming an Existing Application: The wizard can be initialized at any specific step. It checks the browser's navigation state and session storage to see if there is an existing companyId. If one is found, it loads the user's saved progress and jumps directly to the first incomplete step.
+* Progress Saving: After the user successfully completes a step, the data is saved to the backend, and the companyId for the ongoing application is stored in the browser's session storage. This ensures that if the user leaves and returns, their progress is not lost.
+* User Interface: The wizard is divided into two main columns. The left column contains the main form for the current step, while the right column displays a persistent order summary and frequently asked questions to assist the user throughout the process.
+________________
+
+
+2. Step-by-Step Workflow Details
+The wizard guides the user through a series of forms, each with specific rules and validation.
+* Step 1: Select State
+   * Purpose: To select the state of formation for the LLC.
+   * Functionality: The user chooses a state from a dropdown list. Upon selection, the system checks if a registered agent is available for that state. An error will be shown if an agent is not available. The state's filing fee is also fetched and displayed in the order summary.
+* Step 2: Name Your Company
+   * Purpose: To choose a legal name for the LLC.
+   * Functionality: The user enters their desired company name and selects a legal suffix (e.g., "LLC", "L.L.C.") from a dropdown. The system then performs a real-time "Company Name Availability Check" by calling an external service. The results are displayed to the user, indicating if the name is available, unavailable, or potentially available with minor changes.
+* Step 3: Set Formation Date
+   * Purpose: To set the official formation date for the LLC.
+   * Functionality: The user can select a formation date using a date picker. The date must be within the next 90 days and cannot be in the past.
+* Step 4: Business Description
+   * Purpose: To provide details about the business's purpose and activities.
+   * Functionality: The user provides a business description, an optional trade name (DBA), and selects the company's principal activity from a predefined list.
+* Step 5: Primary Contact Information
+   * Purpose: To designate a primary contact person for the LLC.
+   * Functionality: The user must provide a First Name, Last Name, Email, and Phone Number. All fields are required and are validated to ensure they are in the correct format (e.g., names accept only letters, phone number must match the (123) 456-7890 format).
+* Step 6: Registered Agent
+   * Purpose: To appoint a Registered Agent to receive official documents.
+   * Functionality: By default, the system appoints ClearInCorp as the registered agent. The user is presented with the agent's details and must agree to the terms.
+* Step 7: Select Optional Services (EIN, Operating Agreement, Expedited Service)
+   * Purpose: To offer valuable add-on services for the new LLC.
+   * Functionality: The user is presented with three optional services, each with a corresponding fee that is added to the order summary if selected:
+      * EIN Registration: To obtain a Federal Employer Identification Number.
+      * Operating Agreement: A legal document outlining the LLC's rules.
+      * Expedited Service: To speed up the state filing process.
+* Step 8: Payment
+   * Purpose: To collect payment for the formation services.
+   * Functionality: The user reviews the final charges in the order summary and submits their payment information through an integrated and secure payment processor (Stripe).
+* Step 9: Management Structure
+   * Purpose: To define how the LLC will be managed.
+   * Functionality: The user must choose between two management styles:
+      * Member-Managed: All owners are involved in daily operations.
+      * Manager-Managed: The LLC is run by designated managers.
+   * This choice is critical as it determines which of the subsequent steps are shown to the user.
+* Step 10 & 11: Add Managers and/or Members
+   * Purpose: To list the individuals involved in the LLC.
+   * Functionality: Based on the management style selected, the user is presented with forms to add Managers and/or Members. For each individual, they must provide a First Name, Last Name, and address. If the LLC is member-managed, the user must also specify the ownership percentage for each member, and the system validates that the total ownership adds up to exactly 100%.
+* Step 12: Business Address
+   * Purpose: To provide the official business address for the LLC.
+   * Functionality: The user enters the physical street address of the business. This address is validated to ensure all required fields (street, city, etc.) are provided.
+* Step 13: Final Review and Submission
+   * Purpose: To allow the user to review all entered information before final submission.
+   * Functionality: The user is shown a summary of all the details provided throughout the wizard. After confirming everything is correct, they submit the application. This action flags the application as complete and ready for processing by the internal filing team.
+* EIN Application Steps (Conditional)
+   * Purpose: To collect detailed information required for the IRS EIN application.
+   * Functionality: If the user selected the EIN service in Step 7, they are directed to a separate, detailed form after completing the main LLC application. This form collects specific information required by the IRS, such as the reason for applying, number of members, and details about the responsible party.

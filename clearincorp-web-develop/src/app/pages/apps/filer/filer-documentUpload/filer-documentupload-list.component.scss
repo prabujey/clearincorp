@@ -1,0 +1,146 @@
+@use "src/variables" as *;
+
+/* Hide sidebar */
+.sidebar.hidden {
+  display: none;
+}
+
+/* Adjust content when sidebar is hidden */
+.main-content {
+  transition: margin-left 0.3s ease;
+}
+      /* Container for both filters */
+.state-search-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;              // space between the two fields
+  max-width: 0;          // start collapsed
+  overflow: hidden;
+  opacity: 0;
+  transition: 
+    max-width 0.3s ease, 
+    opacity    0.3s ease;
+
+  &.show-state-search {
+    max-width: 420px;    // ~ 200px + 200px + 8px gap + padding if any
+    opacity: 1;
+    overflow: visible;
+  }
+}
+
+/* If you still need the search-field transition from before */
+.search-field {
+   flex: 1;
+          min-width: 250px;
+          max-width: 450px;
+  transition: opacity 0.2s ease-in-out;
+  opacity: 1;
+}
+
+/* Mobile tweaks */
+@media (max-width: 768px) {
+  .state-search-container.show-state-search {
+    max-width: 300px;    // shrink for smaller screens
+  }
+
+  .search-field {
+    margin-bottom: 16px;
+  }
+}
+
+/* Rotate icon when active */
+.settings-icon {
+  transition: transform 0.3s ease-in-out;
+
+  &.active {
+    transform: rotate(180deg);
+  }
+}
+
+.expedited-toggle {
+  display: inline-flex;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.expedited-toggle .toggle-btn {
+  border: none;
+  background: transparent;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #4b5563;
+  cursor: pointer;
+  min-width: 0;
+  white-space: nowrap;
+
+  &:first-child {
+    border-right: 1px solid #e5e7eb;
+  }
+
+  &:hover {
+    background-color: #f9fafb;
+  }
+
+  &.active {
+    background-color: #bf0a30; // or use your $primary-color
+    color: #ffffff;
+  }
+}
+
+ .empty-state-card {
+        max-width: 520px;
+        margin: 0 auto;
+        padding: 20px 24px;
+        border-radius: 16px;
+        background: transparent;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .empty-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+        background: rgba(239, 68, 68, 0.08); // soft warn background
+
+        mat-icon {
+          font-size: 22px;
+          width: 22px;
+          height: 22px;
+          color: #ef4444; // warn red
+        }
+      }
+
+      .empty-title {
+        margin: 0 0 4px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #111827;
+      }
+
+      .empty-text {
+        margin: 0 0 14px 0;
+        font-size: 13px;
+        line-height: 1.5;
+        color: #6b7280;
+      }
+
+      .empty-action-btn {
+        margin-top: 4px;
+        padding: 6px 18px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 500;
+        text-transform: none;
+      }
+
+

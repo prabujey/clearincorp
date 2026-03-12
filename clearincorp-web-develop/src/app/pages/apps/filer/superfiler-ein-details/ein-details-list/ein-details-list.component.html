@@ -1,0 +1,268 @@
+<!-- Main Card for Search and Actions -->
+<mat-card class="cardWithShadow">
+  <mat-card-content>
+    <div class="row justify-content-between align-items-center">
+      <!-- Search Input (Left) -->
+      <div class="col-sm-12 col-md-4 search-field">
+        <mat-form-field appearance="outline" class="w-100 hide-hint">
+          <mat-label>Search Company</mat-label>
+          <input
+            matInput
+            placeholder="Search Company"
+            [(ngModel)]="searchValue"
+            (keydown.enter)="onSearch()"
+            aria-label="Search companies"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            aria-label="Search"
+            (click)="onSearch()"
+          >
+            <ng-icon name="tablerSearch" class="icon-26 d-flex justify-content-center align-items-center"></ng-icon>
+          </button>
+        </mat-form-field>
+      </div>
+      <div
+        class="col-sm-12 col-md-8 d-flex align-items-center justify-content-end"
+      >
+
+            <div class="expedited-toggle m-r-8">
+              <button
+                type="button"
+                class="toggle-btn"
+                [class.active]="expeditedFilter === 'noExpedited'"
+                (click)="setExpeditedFilter('noExpedited')"
+              >
+                No Expedited Service&nbsp;<span >({{ noExpeditedCount }})</span> 
+              </button>
+
+              <button
+                type="button"
+                class="toggle-btn"
+                [class.active]="expeditedFilter === 'expedited'"
+                (click)="setExpeditedFilter('expedited')"
+              >
+                Expedited Service&nbsp;<span >({{ expeditedCount }})</span> 
+              </button>
+            </div>
+        <!-- toggle-wrapper -->
+        <div
+          class="state-search-container d-flex align-items-center"
+          [class.show-state-search]="showStateSearch"
+        >
+          <!-- state autocomplete -->
+          <mat-form-field
+            appearance="outline"
+            class="hide-hint"
+            floatLabel="auto"
+          >
+            <mat-label>State / Jurisdiction</mat-label>
+            <input
+              matInput
+              [formControl]="stateControl"
+              [matAutocomplete]="auto"
+              placeholder="Search..."
+            />
+            <mat-autocomplete
+              #auto="matAutocomplete"
+              (optionSelected)="onStateSelected($event.option.value)"
+            >
+              <mat-option
+                *ngFor="let state of filteredStates | async"
+                [value]="state"
+              >
+                {{ state }}
+              </mat-option>
+            </mat-autocomplete>
+            <button
+              *ngIf="stateControl.value"
+              matSuffix
+              mat-icon-button
+              (click)="clearState()"
+            >
+              <ng-icon name="tablerX" class="icon-24 d-flex justify-content-center align-items-center"></ng-icon>
+            </button>
+          </mat-form-field>
+        </div>
+
+        <!-- Filter Icon (Toggles State Search) -->
+        <button
+          mat-icon-button
+          (click)="toggleStateSearch()"
+          matTooltip="Filter"
+          aria-label="Toggle state filter"
+        >
+          <ng-icon
+            name="tablerFilterPlus"
+            class="icon-26 d-flex justify-content-center align-items-centersettings-icon"
+            [class.active]="showStateSearch"
+          ></ng-icon>
+        </button>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
+
+<!-- Table Card -->
+<mat-card class="cardWithShadow">
+  <mat-card-content class="p-24">
+    <div class="table-responsive" [ngClass]="{ disabled: isLoading }">
+      <table mat-table [dataSource]="dataSource" class="w-100">
+        <!-- Company Name Column -->
+        <ng-container matColumnDef="companyName">
+          <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">
+            Company
+          </th>
+          <td mat-cell *matCellDef="let element">
+            <div class="d-flex align-items-center">
+              <div class="m-l-16">
+                <p
+                  class="f-w-600  f-s-16 m-t-0 d-flex align-items-center"
+                >
+                  <span
+                    *ngIf="element.isExpeditedServiceSelected"
+                    class="expedited-badge"
+                    style="margin-right: 5px"
+                    matTooltip="Priority Processing "
+                  >
+                   <i class="fa-solid fa-star fa-beat-fade fa-lg" style="color: #bf0a30;"></i></span
+                  >{{ element.companyName }}
+                </p>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- State Column -->
+        <ng-container matColumnDef="state">
+          <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">
+            State
+          </th>
+          <td mat-cell *matCellDef="let element" class="f-s-14">
+            {{ element.state }}
+          </td>
+        </ng-container>
+
+        <!-- SSN ID Column -->
+        <!-- <ng-container matColumnDef="ssnId">
+          <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">
+            SSN ID
+          </th>
+          <td mat-cell *matCellDef="let element" class="f-s-14">
+            {{ element.ssnId || 'N/A' }}
+          </td>
+        </ng-container> -->
+
+        <!-- Service Type Column -->
+        <!-- <ng-container matColumnDef="serviceType">
+          <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">
+            Service Type
+          </th>
+          <td mat-cell *matCellDef="let element" class="f-s-14">
+            <span [ngClass]="element.isExpeditedServiceSelected ? 'service-expedited' : 'service-standard'">
+              {{ element.isExpeditedServiceSelected ? 'Expedited' : 'Standard' }}
+            </span>
+          </td>
+        </ng-container> -->
+
+        <!-- View Column -->
+        <ng-container matColumnDef="view">
+          <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">View</th>
+          <td mat-cell *matCellDef="let element" class="f-s-14">
+            <button
+              mat-icon-button
+              (click)="openDocument(element)"
+              matTooltip="View EIN Document"
+              aria-label="View EIN document"
+              [ngClass]="
+                element.isExpeditedServiceSelected ? 'expedited-action-btn' : ''
+              "
+            >
+              <i class="fa-sharp-duotone fa-solid fa-eye"></i>
+            </button>
+          </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef class="f-s-16 f-w-600">
+            Status
+          </th>
+          <td mat-cell *matCellDef="let element" class="f-s-14">
+            <span
+              class="mat-body-2 f-w-500 p-x-8 p-y-4 rounded-pill f-s-12"
+              [ngStyle]="{
+                  'background-color': element.viewStatus ? '#002868' : '#002868',
+                  color: element.viewStatus ? '#ffffff' : '#ffffff'
+                }"
+            >
+              {{ element.viewStatus ? "Viewed" : "Not Viewed" }}
+            </span>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          [ngClass]="{
+            'expedited-row': row.isExpeditedServiceSelected,
+            'standard-row': !row.isExpeditedServiceSelected
+          }"
+        ></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td
+            class="mat-cell p-24 text-center"
+            [attr.colspan]="displayedColumns.length"
+          >
+            <div class="empty-state-card">,
+              <div class="empty-icon">
+                <mat-icon>search_off</mat-icon>
+              </div>
+
+                 <h3 class="empty-title">
+                <ng-container *ngIf="searchValue || stateControl.value; else noDataTitle">
+                  No EIN records found
+                </ng-container>
+                <ng-template #noDataTitle>
+                  No EIN records to show yet
+                </ng-template>
+              </h3>
+
+              <h3 class="empty-text">
+                <ng-container
+                  *ngIf="searchValue || stateControl.value; else noRecords"
+                >
+                  Try adjusting your search or clearing the filters to see more companies.
+                </ng-container>
+                <ng-template #noRecords>
+                   Once EIN filings are created, they’ll appear here with their latest status.
+                </ng-template>
+              </h3>
+              <button
+                *ngIf="searchValue || stateControl.value"
+                mat-stroked-button
+                color="primary"
+                class="m-t-12"
+                (click)="clearFilters()"
+              >
+                Clear Filters &amp; show all
+              </button>
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <mat-paginator
+        [length]="totalItems"
+        [pageIndex]="pageIndex"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[5, 10, 20]"
+        showFirstLastButtons
+      >
+      </mat-paginator>
+    </div>
+  </mat-card-content>
+</mat-card>

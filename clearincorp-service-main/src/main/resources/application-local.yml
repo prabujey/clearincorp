@@ -1,0 +1,145 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+  mail:
+    host: smtp.zeptomail.com
+    port: 587
+    username: emailapikey
+    password: ${MAIL_PASSWORD:your-mail-password-here}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.connectiontimeout: 10000
+      mail.smtp.timeout: 10000
+      mail.smtp.writetimeout: 10000
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  main:
+    allow-bean-definition-overriding: true
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: false
+        id:
+          new_generator_mappings: false
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    edu.stanford.nlp: ERROR
+    e.stanford: ERROR
+
+
+app:
+  datasource:
+    jdbcUrl: "jdbc:mysql://localhost:3306/llc?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true"
+    userName: "root"
+    password: ${DB_PASSWORD:password}
+    poolSize: 5
+    idleTime: 1080000
+    maxLifeTime: 1200000
+    connectionTimeout: 2000000
+    poolName: "HIKARI-CP"
+    hikari:
+      max-lifetime: 600000  # 10 minutes
+      connection-timeout: 30000  # 30 seconds
+      validation-timeout: 3000
+
+server:
+  port: 8080
+  error:
+    include-message: always
+
+# ============================================================================
+# AWS CONFIGURATION - USE ENVIRONMENT VARIABLES FOR SECRETS
+# ============================================================================
+aws:
+  accessKeyId: ${AWS_ACCESS_KEY_ID:your-access-key-id}
+  secretAccessKey: ${AWS_SECRET_ACCESS_KEY:your-secret-access-key}
+  region: ${AWS_REGION:us-east-1}
+  s3:
+    bucket-name: ${AWS_S3_BUCKET:dev-llc-service-documents}
+    marketplace-bucket: ${AWS_S3_MARKETPLACE_BUCKET:llc-marketplace}
+  cognito:
+    user-pool-id: ${AWS_COGNITO_USER_POOL_ID:your-user-pool-id}
+    client-id: ${AWS_COGNITO_CLIENT_ID:your-client-id}
+    client-secret: ${AWS_COGNITO_CLIENT_SECRET:your-client-secret}
+    hmac-algorithm: "HmacSHA256"
+    default-password: ${AWS_COGNITO_DEFAULT_PASSWORD:Cognito@1234}
+
+# ============================================================================
+# STRIPE CONFIGURATION - USE ENVIRONMENT VARIABLES FOR SECRETS
+# ============================================================================
+stripe:
+  secretKey: ${STRIPE_SECRET_KEY:your-stripe-secret-key}
+  publicKey: ${STRIPE_PUBLIC_KEY:your-stripe-public-key}
+
+# Local AES-256 Envelope Encryption (replaces AWS KMS)
+# Generate a new key with: openssl rand -base64 32
+crypto:
+  local:
+    master-key-b64: ${CRYPTO_MASTER_KEY:generate-with-openssl-rand-base64-32}
+
+frontend:
+  origin:
+    cloudFront: "http://localhost:4200"
+    allowedOrigin: "http://localhost:4200"
+
+# ============================================================================
+# GEMINI AI CONFIGURATION
+# ============================================================================
+gemini:
+  api:
+    key: ${GEMINI_API_KEY:your-gemini-api-key}
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+
+# ============================================================================
+# AUTH & STORAGE PROVIDER CONFIGURATION
+# ============================================================================
+# Set auth.provider to switch between AWS Cognito and Firebase
+# Set storage.provider to switch between AWS S3 and Cloudflare R2
+#
+# auth.provider: cognito (default) | firebase
+# storage.provider: s3 (default) | r2
+# ============================================================================
+
+# To use Firebase Auth instead of Cognito, uncomment and configure:
+# auth:
+#   provider: firebase
+#
+# firebase:
+#   project-id: ${FIREBASE_PROJECT_ID:your-project-id}
+#   # Option 1: Service account JSON (recommended for production)
+#   credentials-json: ${FIREBASE_CREDENTIALS_JSON:}
+#   # Option 2: Use Application Default Credentials (for GCP environments)
+#   # Just set project-id and ensure ADC is configured
+
+# To use Cloudflare R2 instead of S3, uncomment and configure:
+# storage:
+#   provider: r2
+#
+# r2:
+#   account-id: ${R2_ACCOUNT_ID:your-account-id}
+#   access-key: ${R2_ACCESS_KEY:your-access-key}
+#   secret-key: ${R2_SECRET_KEY:your-secret-key}
+#   bucket-name: ${R2_BUCKET_NAME:clearincorp-documents}
+#   marketplace-bucket: ${R2_MARKETPLACE_BUCKET:clearincorp-marketplace}
+#   # Optional: Custom public URL if using R2 public bucket
+#   public-url: ${R2_PUBLIC_URL:}

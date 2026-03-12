@@ -1,0 +1,140 @@
+/* ==========================================================================
+   Site Header Component SCSS (Top Nav)
+   - Manrope font
+   - Brand Blue: #002868
+   - Brand Red : #BF0A30
+   - Uses your font scale
+   ========================================================================== */
+
+/* 🎨 Brand palette */
+$brand-blue: #002868;
+$brand-red:  #BF0A30;
+
+$red-700: darken($brand-red, 10%);
+$ring-strong: rgba($brand-red, 0.35);
+
+/* 📏 Font Sizes */
+$font-size-xxl: 2.25rem;  // 36px
+$font-size-xl:  1.75rem;  // 28px
+$font-size-lg:  1.35rem;  // 24px
+$font-size-md:  1.125rem; // 18px
+$font-size-base: 1rem;    // 16px
+$font-size-sm:  0.875rem; // 14px
+$font-size-xs:  0.75rem;  // 12px
+
+/* 🔤 Font */
+$font-family-base: "Manrope", ui-sans-serif, system-ui, sans-serif,
+  "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+:host {
+  display: block;
+  font-family: $font-family-base;
+}
+
+/* Header shell */
+.site-header {
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  position: relative;
+  z-index: 50;
+}
+
+/* Row */
+.header-inner {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: nowrap;
+}
+
+/* Brand */
+.brand-name {
+  font-size: $font-size-xl; /* was 1.5rem */
+  font-weight: 900;         /* stronger */
+  color: #111827;
+  margin: 0;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+/* Nav */
+.main-nav {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.nav-link {
+  color: #4b5563;
+  padding: 0.35rem 0.85rem;      /* slightly roomier */
+  border-radius: 0.5rem;         /* softer */
+  transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease,
+    border-color 0.2s ease;
+  border: 1px solid transparent;
+  font-size: $font-size-sm;
+  font-weight: 700;
+  text-decoration: none;
+  outline: none;
+
+  &:hover {
+    color: #111827;
+    background: #f9fafb;
+  }
+
+  &.active {
+    color: $brand-red;
+    border-color: #e5e7eb;
+    background: rgba($brand-red, 0.06);
+    box-shadow: inset 0 -2px 0 0 $brand-red;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px $ring-strong;
+  }
+}
+
+/* Right CTA */
+.cta {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+/* Primary button in header */
+.site-header .btn-primary {
+  background: $brand-red;
+  color: #fff;
+  padding: 0.55rem 1rem;
+  border-radius: 0.5rem;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+  border: 0;
+  font-weight: 900;
+  font-size: $font-size-sm;
+  cursor: pointer;
+
+  &:hover {
+    background: $red-700;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+    transform: translateY(-0.5px);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px $ring-strong;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .main-nav {
+    display: none;
+  }
+}

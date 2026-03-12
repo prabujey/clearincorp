@@ -1,0 +1,96 @@
+name: Angular CI/CD Deployment
+
+on:
+  push:
+    branches:
+      - develop
+      - production
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: us-east-1
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '19'
+
+      - name: Install dependencies
+        run: npm ci
+      - name: Set environment variables for deploy target
+        run: |
+          BRANCH="${{ github.ref }}"
+          BRANCH=${BRANCH#refs/heads/}  # Remove 'refs/heads/' from the branch name
+          echo "Deploying branch: $BRANCH"
+    
+          case "$BRANCH" in
+            develop)
+              echo "AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID_DEV }}" >> $GITHUB_ENV
+              echo "S3_BUCKET_NAME=llc-web-dev" >> $GITHUB_ENV
+              echo "CLOUDFRONT_DISTRIBUTION_ID=E2OT9UTPQCPKKW" >> $GITHUB_ENV
+              echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID_DEV }}" >> $GITHUB_ENV
+              echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}" >> $GITHUB_ENV
+              ;;
+            production)
+              echo "AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID_PROD }}" >> $GITHUB_ENV
+              echo "S3_BUCKET_NAME=llc-web-prod" >> $GITHUB_ENV
+              echo "CLOUDFRONT_DISTRIBUTION_ID=E2OT9UTPQCPBSW" >> $GITHUB_ENV
+              echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID_PROD }}" >> $GITHUB_ENV
+              echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}" >> $GITHUB_ENV
+              ;;
+            *)
+              echo "Unsupported branch: $BRANCH" >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Build Angular
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          echo "Building for branch: $BRANCH"
+          if [ "$BRANCH" == "develop" ]; then
+            npx ng build --configuration=development --base-href /app/
+          elif [ "$BRANCH" == "production" ]; then
+            npx ng build --configuration=production --base-href /app/
+          fi
+
+      # --- CRITICAL DEBUGGING STEP ---
+      - name: List dist directory
+        run: |
+          echo "Listing contents of dist directory:"
+          ls -R dist/
+      # -------------------------------
+
+      - name: Deploy to S3 (app folder)
+        run: |
+          # We try to detect the folder name automatically here to prevent failure
+          # This finds the first directory inside 'dist'
+          DIST_FOLDER=$(ls dist | head -n 1)
+          echo "Detected build folder: dist/$DIST_FOLDER"
+          
+          # Run the sync using the detected folder
+          aws s3 sync "dist/$DIST_FOLDER/" s3://$S3_BUCKET_NAME/app/ --delete --exact-timestamps
+
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/app/*"
+
+      

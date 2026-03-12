@@ -1,0 +1,349 @@
+@use "src/variables" as *;
+.text-error {
+  color: #dc3545;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.text-success {
+  color: #28a745;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.elegant-hover-img {
+  transition: transform 0.6s ease;
+}
+
+.elegant-hover-img:hover {
+  transform: scale(1.05);
+}
+
+.hero-heading {
+  font-family: "Jost", "sans-serif", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  font-weight: 800;
+  font-size: 2.6rem;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  color: #051133;
+  margin: 0;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.loading-button {
+  background: $primary-color !important;
+  color: $color-bg-white !important;
+  font-weight: $font-weight-semibold; // 600
+  padding: 16px 24px;
+  border-radius: 10px;
+  text-transform: none;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+  border: none;
+  font-size: $button-font-size;
+
+  cursor: pointer;
+  width: 100%;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
+
+  &:hover:not(.loading):not(.disabled) {
+    background-image: linear-gradient(
+      to right,
+      #bf0a30,
+      #ef2f49,
+      #f32c3f,
+      #f62b34,
+      #f82c28
+    );
+    transform: translateY(-1px);
+    box-shadow: $primary-hover-color;
+  }
+
+  &.disabled {
+    background-color: #6c757d !important;
+    color: #adb5bd !important;
+    cursor: not-allowed;
+
+    &:hover {
+      transform: none;
+      box-shadow: none;
+      background-color: #6c757d !important;
+    }
+  }
+
+  &.loading {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: $primary-color !important;
+    margin: 0 auto;
+    animation: pulse 2s infinite;
+    min-width: 44px;
+    padding: 0;
+
+    .button-text {
+      opacity: 0;
+    }
+
+    .button-spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    ::ng-deep .mat-mdc-progress-spinner circle {
+      stroke: #ffffff;
+    }
+  }
+
+  .button-text {
+    transition: opacity 0.2s ease-in-out;
+    color: #ffffff;
+    white-space: nowrap;
+  }
+
+  .button-spinner {
+    transition: all 0.3s ease-in-out;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(0, 123, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+  }
+}
+
+// Success icon styles
+.success-icon {
+  color: #28a745;
+  font-size: 20px;
+}
+// Add this to your existing SCSS
+
+.otp-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 15px;
+
+  // Targeting the inner classes of ng-otp-input
+  ::ng-deep .otp-input {
+   
+    
+    width: 52px !important;
+    height: 50px !important;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+    
+    &:focus {
+      border-color: $title-color !important; // Uses your variable
+      box-shadow: 0 0 0 2px rgba($title-color, 0.2);
+      outline: none;
+    }
+  }
+
+  &.disabled-content {
+    pointer-events: none; /* Blocks all clicks and typing */
+    opacity: 0.5;         /* Makes it look disabled/grayed out */
+    cursor: not-allowed;
+    transition: opacity 0.3s ease;
+  }
+  
+  @media (max-width: 768px) {
+    ::ng-deep .otp-input {
+      width: 45px !important;
+      height: 45px !important;
+      font-size: 1.1rem;
+      margin: 0 3px;
+    }
+  }
+
+  // Mobile Phones (Max width: 480px)
+  @media (max-width: 480px) {
+    ::ng-deep .otp-input {
+      width: 38px !important;
+      height: 40px !important;
+      font-size: 1rem;
+      margin: 0 2px; // Reduce margin to fit all 6 on one line
+      border-radius: 6px;
+    }
+  }
+  @media (max-width: 360px) {
+    ::ng-deep .otp-input {
+      width: 32px !important;
+      height: 35px !important;
+      font-size: 0.9rem;
+      margin: 0 1px;
+    }
+  }
+}
+
+// Optional: Adjust specific spacing for mobile
+
+
+// Override Material Design button styles for our custom loading button
+.loading-button.mat-mdc-button-base {
+  &.loading {
+    min-width: 44px;
+    padding: 0;
+
+    .mdc-button__label {
+      display: none;
+    }
+  }
+}
+
+// Ensure spinner is properly centered and visible
+::ng-deep .loading-button.loading {
+  .mat-mdc-progress-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    svg circle {
+      stroke: #ffffff !important;
+    }
+  }
+}
+
+// Form field validation states
+::ng-deep .mat-mdc-form-field {
+  &.ng-invalid.ng-touched {
+    .mat-mdc-text-field-wrapper {
+      .mat-mdc-form-field-outline {
+        .mat-mdc-form-field-outline-thick {
+          border-color: #dc3545;
+        }
+      }
+    }
+  }
+
+  &.ng-valid.ng-touched {
+    .mat-mdc-text-field-wrapper {
+      .mat-mdc-form-field-outline {
+        .mat-mdc-form-field-outline-thick {
+          border-color: #28a745;
+        }
+      }
+    }
+  }
+}
+
+// Accessibility improvements
+.loading-button:focus-visible {
+  outline: 2px solid $primary-color;
+  outline-offset: 2px;
+}
+
+// Countdown Timer Styles
+.countdown-timer-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.countdown-timer {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6c757d;
+  background-color: #f8f9fa;
+  padding: 4px 8px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+  min-width: 50px;
+  text-align: center;
+  transition: all 0.3s ease;
+
+  &.warning {
+    background-color: #fff3cd;
+    color: #856404;
+    animation: warningPulse 2s infinite;
+  }
+
+  &.danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    animation: dangerPulse 1s infinite;
+  }
+
+  &.bomb {
+    background-color: #dc3545;
+    color: #ffffff;
+    animation: bombEffect 0.5s infinite;
+  }
+}
+
+@keyframes warningPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 4px rgba(255, 193, 7, 0.1);
+  }
+}
+
+@keyframes dangerPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 6px rgba(220, 53, 69, 0.1);
+  }
+}
+
+@keyframes bombEffect {
+  0% {
+    transform: scale(1);
+    background-color: #dc3545;
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.8);
+  }
+  25% {
+    transform: scale(1.2);
+    background-color: #ff1744;
+    box-shadow: 0 0 0 8px rgba(255, 23, 68, 0.4);
+  }
+  50% {
+    transform: scale(1.3);
+    background-color: #ff5722;
+    box-shadow: 0 0 0 12px rgba(255, 87, 34, 0.2);
+  }
+  75% {
+    transform: scale(1.2);
+    background-color: #ff9800;
+    box-shadow: 0 0 0 8px rgba(255, 152, 0, 0.4);
+  }
+  100% {
+    transform: scale(1);
+    background-color: #dc3545;
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.8);
+  }
+}

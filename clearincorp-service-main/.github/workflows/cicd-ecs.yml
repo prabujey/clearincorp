@@ -1,0 +1,203 @@
+name: CI/CD to ECS via ECR (access keys)
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to 'main' (production)
+      - dev   # Trigger on push to 'dev' (development)
+      - uat
+
+concurrency:
+  group: ecs-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  ECS_CLUSTER: llcCluster
+  DOCKER_PLATFORM: linux/amd64
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ---------- Set up Java and Build the Project ----------
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: maven-${{ runner.os }}-
+
+      - name: Build JAR with Maven
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "Building for production"
+            mvn -B clean package -DskipTests -Dspring.profiles.active=prod
+          elif [ "${{ github.ref }}" == "refs/heads/uat" ]; then
+            echo "Building for UAT"
+            mvn -B clean package -DskipTests -Dspring.profiles.active=uat
+          else
+            echo "Building for development"
+            mvn -B clean package -DskipTests -Dspring.profiles.active=dev
+          fi
+
+      - name: Verify artifact exists
+        run: ls -l target/*.jar
+      # ---------------------------------------------------
+
+
+
+      # Set environment variables based on the branch (main for prod, dev for dev)
+      - name: Set environment variables based on branch
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "ENV_NAME=prod" >> $GITHUB_ENV
+            echo "SPRING_PROFILES_ACTIVE=prod" >> $GITHUB_ENV
+            echo "ECR_REPOSITORY=llc-prod" >> $GITHUB_ENV
+            echo "ECS_SERVICE=llc_Prod_Service" >> $GITHUB_ENV
+            echo "ECS_CLUSTER=llcProdCluster" >> $GITHUB_ENV
+            echo "CONTAINER_NAME=llc_Prod_Container" >> $GITHUB_ENV
+            echo "LOG_GROUP=/ecs/llc_prod" >> $GITHUB_ENV
+            echo "AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID_PROD }}" >> $GITHUB_ENV
+            echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID_PROD }}" >> $GITHUB_ENV
+            echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}" >> $GITHUB_ENV
+
+          elif [ "${{ github.ref }}" == "refs/heads/uat" ]; then
+            echo "ENV_NAME=uat" >> $GITHUB_ENV
+            echo "SPRING_PROFILES_ACTIVE=uat" >> $GITHUB_ENV
+            echo "ECR_REPOSITORY=llc-uat" >> $GITHUB_ENV
+            echo "ECS_SERVICE=llc_Uat_Service" >> $GITHUB_ENV
+            echo "ECS_CLUSTER=llcUatCluster" >> $GITHUB_ENV
+            echo "CONTAINER_NAME=llc_Uat_Container" >> $GITHUB_ENV
+            echo "LOG_GROUP=/ecs/llc_uat" >> $GITHUB_ENV
+            echo "AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID_UAT }}" >> $GITHUB_ENV
+            echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID_UAT }}" >> $GITHUB_ENV
+            echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY_UAT }}" >> $GITHUB_ENV
+
+          else
+            echo "ENV_NAME=dev" >> $GITHUB_ENV
+            echo "SPRING_PROFILES_ACTIVE=dev" >> $GITHUB_ENV
+            echo "ECR_REPOSITORY=llc-dev" >> $GITHUB_ENV
+            echo "ECS_SERVICE=llc_Dev_Service" >> $GITHUB_ENV
+            echo "ECS_CLUSTER=llcCluster" >> $GITHUB_ENV
+            echo "CONTAINER_NAME=llc_Dev_Container" >> $GITHUB_ENV
+            echo "LOG_GROUP=/ecs/llc_dev" >> $GITHUB_ENV
+            echo "AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}" >> $GITHUB_ENV
+            echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> $GITHUB_ENV
+            echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> $GITHUB_ENV
+          fi
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Ensure ECR repository exists
+        run: |
+          aws ecr describe-repositories --repository-names "${{ env.ECR_REPOSITORY }}" >/dev/null 2>&1 || \
+          aws ecr create-repository --repository-name "${{ env.ECR_REPOSITORY }}" >/dev/null
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Compute image URIs/tags
+        id: img
+        run: |
+          IMAGE_URI="${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}"
+          SHA_TAG="${GITHUB_SHA::7}"
+          echo "image_uri=$IMAGE_URI" >> "$GITHUB_OUTPUT"
+          echo "sha_tag=$SHA_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Build and push Docker image
+      - name: Build and push image (multi-stage Dockerfile)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          platforms: ${{ env.DOCKER_PLATFORM }}
+          provenance: false
+          tags: |
+            ${{ steps.img.outputs.image_uri }}:latest
+            ${{ steps.img.outputs.image_uri }}:${{ steps.img.outputs.sha_tag }}
+          build-args: |
+            SPRING_PROFILES_ACTIVE=${{ env.SPRING_PROFILES_ACTIVE }}
+
+      - name: Ensure CloudWatch log group exists
+        run: |
+          aws logs create-log-group --log-group-name "${{ env.LOG_GROUP }}" --region "${{ env.AWS_REGION }}" || true
+
+      - name: Get task definition ARN from service
+        id: svc
+        run: |
+          TD_ARN=$(aws ecs describe-services \
+            --cluster "${{ env.ECS_CLUSTER }}" \
+            --services "${{ env.ECS_SERVICE }}" \
+            --region "${{ env.AWS_REGION }}" \
+            --query "services[0].taskDefinition" --output text)
+          if [ -z "$TD_ARN" ] || [ "$TD_ARN" = "None" ]; then
+            echo "Service not found or no taskDefinition set in ${{ env.AWS_REGION }}."
+            exit 1
+          fi
+          echo "task_def_arn=$TD_ARN" >> "$GITHUB_OUTPUT"
+
+      - name: Download current task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition "${{ steps.svc.outputs.task_def_arn }}" \
+            --region "${{ env.AWS_REGION }}" \
+            --query taskDefinition \
+            --output json > task-def.json
+
+      - name: Patch task definition (containerPort=8080 + awslogs)
+        run: |
+          sudo apt-get update && sudo apt-get install -y jq
+          jq --arg name "${{ env.CONTAINER_NAME }}" \
+             --arg lg "${{ env.LOG_GROUP }}" \
+             --arg reg "${{ env.AWS_REGION }}" '
+            .containerDefinitions |= map(
+              if .name==$name then
+                .portMappings = [{containerPort:8080, protocol:"tcp"}] |
+                .logConfiguration = {
+                  logDriver:"awslogs",
+                  options:{
+                    "awslogs-group":$lg,
+                    "awslogs-region":$reg,
+                    "awslogs-stream-prefix":"ecs"
+                  }
+                }
+              else . end
+            )
+          ' task-def.json > task-def.patched.json
+          mv task-def.patched.json task-def.json
+
+      - name: Render task definition with new image
+        id: render
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-def.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.img.outputs.image_uri }}:${{ steps.img.outputs.sha_tag }}
+
+      - name: Deploy to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true

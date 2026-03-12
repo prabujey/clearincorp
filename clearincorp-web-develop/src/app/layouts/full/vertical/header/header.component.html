@@ -1,0 +1,260 @@
+<mat-toolbar class="topbar">
+  <!-- --------------------------------------------------------------- -->
+  <!-- Desktop Menu -->
+  @if(showToggle) {
+  <button
+    mat-icon-button
+    (click)="toggleCollapsed.emit()"
+    class="d-flex justify-content-center"
+    [disabled]="isToggleDisabled"
+  >
+    <ng-icon name="tablerAlignLeft" class="icon-20 d-flex"></ng-icon>
+  </button>
+  }
+
+  <!-- Mobile Menu -->
+  @if(!showToggle) {
+  <button
+    mat-icon-button
+    (click)="toggleMobileNav.emit()"
+    class="d-flex justify-content-center"
+  >
+    <ng-icon name="tablerAlignLeft" class="icon-20 d-flex"></ng-icon>
+  </button>
+  }
+
+  <!-- --------------------------------------------------------------- -->
+
+  <span class="flex-1-auto"></span>
+
+<button
+  mat-icon-button
+  #notificationTrigger="matMenuTrigger"
+  [matMenuTriggerFor]="notificationMenu"
+  [matBadge]="pendingTaskCount"
+  style="color: #002868;"
+  [matBadgeHidden]="pendingTaskCount === 0"
+  matBadgeSize="small"
+  [attr.aria-label]="'Pending Tasks: ' + pendingTaskCount"
+  class="m-r-8 custom-bell-badge"
+  [ngClass]="{
+    'has-pending': pendingTaskCount > 0,
+    'is-open': isNotificationMenuOpen
+  }"
+>
+  <mat-icon class="icon-30">
+    {{ pendingTaskCount > 0 ? 'notifications_active' : 'notifications_none' }}
+  </mat-icon>
+</button>
+
+
+<mat-menu
+  #notificationMenu="matMenu"
+  xPosition="before"
+  class="topbar-dd cardWithShadow notification-menu"
+  (menuOpened)="onNotificationMenuOpened()"
+  (menuClosed)="onNotificationMenuClosed()"
+>
+  <div class="notif-panel">
+
+    <!-- ✅ Header (sticky) -->
+    <div class="notif-header">
+      <div class="notif-title">
+        <mat-icon class="notif-title-icon">task_alt</mat-icon>
+        <div>
+          <h6 class="m-0">Pending Tasks</h6>
+          <p class="m-0">You have <b>{{ pendingTaskCount }}</b> pending</p>
+        </div>
+      </div>
+
+      <span class="notif-count-chip" [class.has]="pendingTaskCount > 0">
+        {{ pendingTaskCount }}
+      </span>
+    </div>
+
+    <!-- ✅ List (only this scrolls) -->
+    <ng-scrollbar
+      class="notif-list"
+      ngScrollReached
+      (reachedBottom)="loadNextPage()"
+    >
+      @if (notificationTasks.length === 0 && pendingTaskCount === 0) {
+        <div class="notif-empty">
+          <div class="notif-empty-icon">
+            <mat-icon>done_all</mat-icon>
+          </div>
+          <h6 class="m-0">All caught up</h6>
+          <p class="m-0">No tasks are currently pending.</p>
+        </div>
+      }
+
+      @for (task of notificationTasks; track task.id) {
+        <button
+          mat-menu-item
+          class="notif-item"
+          [routerLink]="['/apps/todo/analytics', task.id]"
+          (click)="notificationTrigger.closeMenu()"
+        >
+       
+          <div class="notif-item-left">
+             <div class="d-flex justify-content-between align-items-center">
+            <div class="notif-message text-truncate">
+              {{ task.message }}
+            </div>
+             <span
+            class="priority-dot"
+            [class.high]="task.priorityLevel === 'high'"
+            [class.medium]="task.priorityLevel === 'medium'"
+            [class.low]="task.priorityLevel === 'low'"
+            title="Priority: {{ task.priorityLevel | titlecase }}"
+          ></span>
+            </div>
+            <div class="notif-meta">
+              <ng-icon name="tablerCalendar" class="icon-14"></ng-icon>
+              <span>Due</span>
+              <strong [class.overdue]="isTaskOverdue(task.targetDate)">
+                {{ task.targetDate | date: 'MMM d, y' }}
+              </strong>
+            </div>
+          </div>
+
+         
+        </button>
+      }
+    </ng-scrollbar>
+
+    <!-- ✅ Footer (sticky) -->
+    <div class="notif-footer">
+      <button
+        mat-flat-button
+        class="notif-cta"
+        style="font-weight: 600;"
+        routerLink="/apps/todo"
+        (click)="notificationTrigger.closeMenu()"
+      >
+        Go to Pending Tasks...
+      </button>
+    </div>
+
+  </div>
+</mat-menu>
+
+
+  <!-- --------------------------------------------------------------- -->
+  <!-- profile Dropdown -->
+  <!-- --------------------------------------------------------------- -->
+  <button
+    mat-fab
+    extended
+    color="inherit"
+    [matMenuTriggerFor]="profileMenu"
+    aria-label="Notifications"
+  >
+    <div class="d-flex align-items-center">
+      <img
+        [src]="getProfileImageUrl()"
+        class="rounded-circle object-cover"
+        width="40"
+        height="40"
+      />
+
+      <div class="m-l-16 text-left d-none d-lg-flex">
+        <div>
+          <h5 class="f-s-16">{{ user.firstName | titlecase }}</h5>
+          <span class="f-s-14 mat-body-1">{{ role }}</span>
+        </div>
+      </div>
+    </div>
+  </button>
+  <mat-menu
+    #profileMenu="matMenu"
+    xPosition="before"
+    class="topbar-dd cardWithShadow"
+  >
+    <ng-scrollbar class="position-relative" style="height: 350px">
+      <div class="p-x-32 p-y-16">
+        <h6 class="f-s-16 f-w-600 m-0 mat-subtitle-1">User Profile</h6>
+
+        <div class="d-flex align-items-center p-b-24 b-b-1 m-t-16">
+          <img
+            [src]="getProfileImageUrl()"
+            class="rounded-circle"
+            width="95"
+            height="95"
+          />.
+          <div class="m-l-16">
+            <h6
+              class="f-s-16 f-w-600 m-0 mat-subtitle-1 m-b-4"
+              style="color: #002868"
+            >
+              {{ user.firstName | titlecase }}
+            </h6>
+            <span
+              class="f-s-14 f-w-600 mat-body-1 d-block m-b-4"
+              style="color: #bf0a30"
+              >{{ role }}</span
+            >
+            <span class="d-flex align-items-center">
+              <ng-icon name="tablerMail" class="icon-16 m-r-4"></ng-icon>
+              {{ user.email }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="p-x-32">
+        @for(profile of profiledd; track profile.title) {
+        <a
+          class="p-y-16 text-decoration-none d-block text-hover-primary"
+          [class.disabled-link]="!profile.link"
+          [routerLink]="profile.link || null"
+          (click)="!profile.link && $event.preventDefault()"
+        >
+          <div class="d-flex align-items-center">
+            <span
+              class="text-{{
+                profile.color
+              }} bg-light-infocolor icon-50 d-flex align-items-center justify-content-center shadow-none rounded"
+            >
+              <mat-icon
+                class="icon-38 d-flex justify-content-center align-items-center"
+                >{{ profile.img }}</mat-icon
+              >
+            </span>
+
+            <div class="m-l-16">
+              <h5
+                class="f-s-14 f-w-900 m-0 hover-text"
+                style="
+                  color: #002868;
+                  transition: text-shadow 0.25s ease, filter 0.25s ease;
+                "
+              >
+                {{ profile.title }}
+              </h5>
+              <span class="mat-body-1">{{ profile.subtitle }}</span>
+            </div>
+          </div>
+        </a>
+        }
+      </div>
+
+      <div class="p-y-12 p-x-32">
+        <button
+          (click)="ClearLocalStorage()"
+          mat-flat-button
+          class="button-all w-100"
+        >
+          Logout
+        </button>
+      </div>
+    </ng-scrollbar>
+  </mat-menu>
+</mat-toolbar>
+
+<style>
+  .hover-text:hover {
+    text-shadow: 0 0 6px rgba(63, 131, 241, 0.45),
+      0 0 14px rgba(127, 173, 247, 0.28);
+    filter: brightness(1.05);
+  }
+</style>

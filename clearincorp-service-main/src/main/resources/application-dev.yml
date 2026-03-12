@@ -1,0 +1,100 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+    mvc:
+      throw-exception-if-no-handler-found: true
+    web:
+      resources:
+        add-mappings: false
+  mail:
+    host: smtp.zeptomail.com
+    port: 587
+    username: ${DEV_EMAIL_USERNAME}
+    password: ${DEV_EMAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.connectiontimeout: 10000
+      mail.smtp.timeout: 10000
+      mail.smtp.writetimeout: 10000
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  main:
+    allow-bean-definition-overriding: true
+
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: false
+        id:
+          new_generator_mappings: false
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+logging:
+  level:
+    root: WARN
+    org.springframework: INFO
+    org.hibernate.SQL: OFF
+    org.hibernate.type.descriptor.sql.BasicBinder: OFF
+    edu.stanford.nlp: ERROR
+    e.stanford: ERROR
+
+app:
+  datasource:
+    jdbcUrl: "jdbc:mysql://${DEV_DB_HOSTNAME}:${DEV_DB_PORT}/llc?useSSL=false&serverTimezone=UTC"
+    userName: ${DEV_DB_USERNAME}
+    password: ${DEV_DB_PASSWORD}
+    poolSize: 5
+    idleTime: 1080000
+    maxLifeTime: 1200000
+    connectionTimeout: 2000000
+    poolName: "HIKARI-CP"
+    hikari:
+      max-lifetime: 600000  # 10 minutes
+      connection-timeout: 30000  # 30 seconds
+      validation-timeout: 3000
+
+server:
+  port: 8080
+  error:
+    include-message: always
+
+aws:
+  accessKeyId: ${DEV_AWS_ACCESS_KEY_ID}
+  secretAccessKey: ${DEV_AWS_SECRET_ACCESS_KEY}
+  region: ${DEV_AWS_REGION}
+  s3:
+    bucket-name: ${DEV_S3_BUCKET_NAME}
+    marketplace-bucket: ${DEV_MARKETPLACE_BUCKET}
+  cognito:
+    user-pool-id: ${DEV_COGNITO_USER_POOL_ID}
+    client-id: ${DEV_COGNITO_CLIENT_ID}
+    client-secret: ${DEV_COGNITO_CLIENT_SECRET}
+    hmac-algorithm: ${DEV_COGNITO_ALGORITHM}
+    default-password: ${DEV_COGNITO_DEFAULT_PASSWORD}
+
+
+
+stripe:
+  secretKey: ${DEV_STRIPE_SECRET_KEY}
+  publicKey: ${DEV_STRIPE_PUBLIC_KEY}
+
+# KMS + Crypto
+crypto:
+  kms:
+    region: us-east-1
+    cmk-arn: arn:aws:kms:us-east-1:340752807059:key/e982f811-4472-40b3-9802-c9c18f29759b
+
+frontend:
+  origin:
+    cloudFront: "https://d2g1vqx667lhiu.cloudfront.net"
+    allowedOrigin: "https://d2g1vqx667lhiu.cloudfront.net"
+gemini:
+  api:
+    key: ${DEV_GEMINI_API_KEY:your-gemini-api-key}
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent

@@ -1,0 +1,96 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+  mail:
+    host: smtp.zeptomail.com
+    port: 587
+    username: ${UAT_EMAIL_USERNAME}
+    password: ${UAT_EMAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.connectiontimeout: 10000
+      mail.smtp.timeout: 10000
+      mail.smtp.writetimeout: 10000
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  main:
+    allow-bean-definition-overriding: true
+
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: false
+        id:
+          new_generator_mappings: false
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    org.hibernate.SQL: OFF
+    org.hibernate.type.descriptor.sql.BasicBinder: OFF
+    edu.stanford.nlp: ERROR
+    e.stanford: ERROR
+
+app:
+  datasource:
+    jdbcUrl: "jdbc:mysql://${UAT_DB_HOSTNAME}:${UAT_DB_PORT}/llc?useSSL=false&serverTimezone=UTC"
+    userName: ${UAT_DB_USERNAME}
+    password: ${UAT_DB_PASSWORD}
+    poolSize: 5
+    idleTime: 1080000
+    maxLifeTime: 1200000
+    connectionTimeout: 2000000
+    poolName: "HIKARI-CP"
+    hikari:
+      max-lifetime: 600000  # 10 minutes
+      connection-timeout: 30000  # 30 seconds
+      validation-timeout: 3000
+
+server:
+  port: 8080
+  error:
+    include-message: always
+
+aws:
+  accessKeyId: ${UAT_AWS_ACCESS_KEY_ID}
+  secretAccessKey: ${UAT_AWS_SECRET_ACCESS_KEY}
+  region: ${UAT_AWS_REGION}
+  s3:
+    marketplace-bucket: ${UAT_MARKETPLACE_BUCKET}
+    bucket-name: ${UAT_SERVICE_DOC_BUCKET}
+  cognito:
+    user-pool-id: ${UAT_COGNITO_USER_POOL_ID}
+    client-id: ${UAT_COGNITO_CLIENT_ID}
+    client-secret: ${UAT_COGNITO_CLIENT_SECRET}
+    hmac-algorithm: ${UAT_COGNITO_ALGORITHM}
+    default-password: ${UAT_COGNITO_DEFAULT_PASSWORD}
+
+stripe:
+  secretKey: ${UAT_STRIPE_SECRET_KEY}
+  publicKey: ${UAT_STRIPE_PUBLIC_KEY}
+
+gemini:
+  api:
+    key: ${UAT_GEMINI_API_KEY}
+    url: ${UAT_GEMINI_API_URL}
+
+frontend:
+  origin:
+    cloudFront: ${UAT_ALLOWED_ORIGIN}
+
+crypto:
+  kms:
+    cmk-arn: ${UAT_KMS_CMK_ARN}

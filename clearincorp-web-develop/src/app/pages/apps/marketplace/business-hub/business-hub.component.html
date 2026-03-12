@@ -1,0 +1,969 @@
+<!-- src/app/pages/apps/marketplace/business-hub/business-hub.component.html -->
+
+<ng-container [ngSwitch]="mode()">
+  <!-- ════════════════════════════════════════════════════
+       1) ADMIN HUB
+       ════════════════════════════════════════════════════ -->
+  <ng-container *ngSwitchCase="HubMode.ADMIN_HUB">
+    <!-- LIST PAGE (default) -->
+    <section class="admin-wrapper" *ngIf="!adminDetail; else adminDetailTpl">
+      <div class="admin-header-row">
+        <div>
+          <h2 class="admin-title">Business Hub – Admin</h2>
+          <p class="admin-sub">
+            Review and verify marketplace businesses from here.
+          </p>
+        </div>
+
+        <div class="admin-metrics">
+          <div class="admin-metric">
+            <span class="admin-metric__label">Total</span>
+            <span class="admin-metric__value">{{ totals().total }}</span>
+          </div>
+          <div class="admin-metric">
+            <span class="admin-metric__label">Verified</span>
+            <span class="admin-metric__value">{{ totals().verified }}</span>
+          </div>
+          <div class="admin-metric admin-metric--pending">
+            <span class="admin-metric__label">Pending</span>
+            <span class="admin-metric__value">{{ totals().pending }}</span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="hub-btn-primary admin-add-btn"
+          (click)="onAdminAddBusiness()"
+        >
+          + Add Business
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="admin-filters cardWithShadow">
+        <div class="admin-filter-row">
+          <div class="admin-filter-field">
+            <label class="admin-label">Search</label>
+            <input
+              type="text"
+              class="admin-input"
+              placeholder="Search by name, email, owner..."
+              [value]="search()"
+              (input)="onAdminSearchInput($event)"
+            />
+          </div>
+
+          <div class="admin-filter-field admin-filter-field--sm">
+            <label class="admin-label">ZIP</label>
+            <input
+              type="text"
+              class="admin-input"
+              placeholder="ZIP"
+              [value]="zip() || ''"
+              (input)="onZipInput($event)"
+            />
+          </div>
+
+          <div class="admin-filter-field admin-filter-field--sm">
+            <label class="admin-label">Service</label>
+            <select
+              class="admin-input admin-select"
+              [value]="serviceId() ?? ''"
+              (change)="onServiceSelect($event)"
+            >
+              <option value="">All Services</option>
+              <option *ngFor="let s of serviceOptions()" [value]="s.id">
+                {{ s.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="admin-filter-actions">
+            <button
+              type="button"
+              class="hub-btn-primary hub-btn-primary--ghost"
+              (click)="clearFilters()"
+            >
+              Clear Filters
+            </button>
+          </div>
+        </div>
+
+        <!-- CreatedBy filter buttons -->
+        <div class="admin-filter-row admin-createdby-row">
+          <div class="admin-filter-field">
+            <label class="admin-label">Created By</label>
+            <div class="admin-createdby-toggle">
+              <button
+                type="button"
+                class="chip-btn"
+                [class.chip-btn--active]="createdByFilter() === 'all'"
+                (click)="setCreatedByFilter('all')"
+              >
+                All
+              </button>
+
+              <button
+                type="button"
+                class="chip-btn"
+                [class.chip-btn--active]="createdByFilter() === 'admin'"
+                (click)="setCreatedByFilter('admin')"
+              >
+                Admin
+              </button>
+
+              <button
+                type="button"
+                class="chip-btn"
+                [class.chip-btn--active]="createdByFilter() === 'users'"
+                (click)="setCreatedByFilter('users')"
+              >
+                Others
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table (single table, uses filteredRows()) -->
+      <div class="admin-table-card cardWithShadow">
+        <div class="admin-table-header">
+          <h3 class="admin-table-title">Marketplace Businesses</h3>
+        </div>
+
+        <div class="admin-table-wrapper">
+          <table
+            mat-table
+            [dataSource]="filteredRows()"
+            class="admin-table mat-elevation-z1"
+          >
+            <!-- Business Name -->
+            <ng-container matColumnDef="businessName">
+              <th mat-header-cell *matHeaderCellDef>Business</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="admin-biz-name">{{ row.businessName }}</div>
+                <div class="admin-biz-meta">
+                  <span *ngIf="row.ownerName">
+                    {{ row.ownerName }} ·
+                  </span>
+                  <span>
+                    {{ row.city || '—' }}
+                    <span *ngIf="row.state">, {{ row.state }}</span>
+                  </span>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Email -->
+            <ng-container matColumnDef="email">
+              <th mat-header-cell *matHeaderCellDef>Email</th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.email || '—' }}
+              </td>
+            </ng-container>
+
+            <!-- Phone -->
+            <ng-container matColumnDef="phone">
+              <th mat-header-cell *matHeaderCellDef>Phone</th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.phone || '—' }}
+              </td>
+            </ng-container>
+
+            <!-- Owner -->
+            <ng-container matColumnDef="ownerName">
+              <th mat-header-cell *matHeaderCellDef>Owner</th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.ownerName || '—' }}
+              </td>
+            </ng-container>
+
+            <!-- City -->
+            <ng-container matColumnDef="city">
+              <th mat-header-cell *matHeaderCellDef>City</th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.city || '—' }}
+              </td>
+            </ng-container>
+
+            <!-- State -->
+            <ng-container matColumnDef="state">
+              <th mat-header-cell *matHeaderCellDef>State</th>
+              <td mat-cell *matCellDef="let row">
+                {{ row.state || '—' }}
+              </td>
+            </ng-container>
+
+            <!-- Verified -->
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let row">
+                <span
+                  class="admin-pill"
+                  [ngClass]="{
+                    'admin-pill--verified': row.verified,
+                    'admin-pill--pending': !row.verified
+                  }"
+                >
+                  {{ row.verified ? 'Verified' : 'Pending' }}
+                </span>
+              </td>
+            </ng-container>
+
+            <!-- Actions -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let row">
+                <button
+                  mat-icon-button
+                  matTooltip="View submission"
+                  (click)="onAdminView(row)"
+                >
+                  <mat-icon>open_in_new</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+            <tr class="admin-empty-row" *matNoDataRow>
+              <td [attr.colspan]="displayedColumns.length">
+                No businesses found with current filters.
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- Paginator -->
+        <nav aria-label="Business pagination" class="paginator-nav">
+          <mat-paginator
+            [length]="total()"
+            [pageIndex]="page()"
+            [pageSize]="size()"
+            [pageSizeOptions]="[5, 10, 25]"
+            (page)="onPage($event)"
+          ></mat-paginator>
+        </nav>
+      </div>
+    </section>
+  </ng-container>
+
+  <!-- ════════════════════════════════════════════════════
+       2) CONSUMER VIEW – SINGLE CARD + LANE SWITCH
+       ✅ UPDATED: Uses the SAME Detail Template (adminDetailTpl)
+       ════════════════════════════════════════════════════ -->
+  <ng-container *ngSwitchCase="HubMode.CONSUMER_VIEW">
+    <!-- ✅ If adminDetail exists, show shared detail view -->
+    <ng-container *ngIf="!adminDetail; else adminDetailTpl">
+      <section class="view-wrapper">
+        <mat-card class="view-card">
+          <mat-card-content class="view-card__content">
+            <!-- Header -->
+            <div class="view-header">
+              <div>
+                <p class="view-kicker">Business Hub</p>
+                <h2 class="view-title">{{ getWelcomeMessage() }}</h2>
+                <p class="view-sub">
+                  {{ getSubtitleMessage() }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Your Businesses + CTA -->
+            <div class="view-section-head">
+              <div>
+                <h3 class="view-section-title">Your Businesses</h3>
+              </div>
+
+              <button
+                class="hub-btn-primary view-register-btn"
+                type="button"
+                (click)="startRegistration()"
+              >
+                Register New Business
+              </button>
+            </div>
+
+            <!-- Status summary as toggle buttons -->
+            <div class="status-summary-row">
+              <button
+                type="button"
+                class="status-card"
+                [ngClass]="{ 'status-card--active': isLaneActive('existing') }"
+                (click)="setLane('existing')"
+              >
+                <div class="status-card__top">
+                  <span class="status-card__label">Existing</span>
+                  <span class="status-card__count">
+                    {{ existingBusinesses.length }}
+                  </span>
+                </div>
+                <p class="status-card__sub">
+                  Draft or partially saved formations waiting to be completed.
+                </p>
+              </button>
+
+              <button
+                type="button"
+                class="status-card"
+                [ngClass]="{ 'status-card--active': isLaneActive('progress') }"
+                (click)="setLane('progress')"
+              >
+                <div class="status-card__top">
+                  <span class="status-card__label">In Progress</span>
+                  <span class="status-card__count">
+                    {{ ownerInProgressBusinesses.length }}
+                  </span>
+                </div>
+                <p class="status-card__sub">
+                  Formations you’ve moved forward and are close to filing.
+                </p>
+              </button>
+
+              <button
+                type="button"
+                class="status-card"
+                [ngClass]="{ 'status-card--active': isLaneActive('registered') }"
+                (click)="setLane('registered')"
+              >
+                <div class="status-card__top">
+                  <span class="status-card__label">Registered</span>
+                  <span class="status-card__count">
+                    {{ ownerRegisteredBusinesses.length }}
+                  </span>
+                </div>
+                <p class="status-card__sub">
+                  Admin-approved and active businesses in your portfolio.
+                </p>
+              </button>
+            </div>
+
+            <!-- Single lane panel – content depends on active lane -->
+            <div class="lane-panel" [ngSwitch]="currentLane">
+              <!-- Existing lane -->
+              <ng-container *ngSwitchCase="'existing'">
+                <div class="lane-panel__head">
+                  <h4 class="lane-panel__title">Existing Businesses</h4>
+                </div>
+
+                <ng-container *ngIf="existingBusinesses.length > 0; else noExisting">
+                  <div class="lane-list">
+                    <div
+                      class="company-pill"
+                      *ngFor="let b of existingBusinesses; trackBy: trackByBusinessId"
+                    >
+                      <div class="pill-main">
+                        <div class="pill-name">
+                          {{ b.companyName }}
+                        </div>
+                        <div class="pill-meta">
+                          {{ b.state || '—' }}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        class="hub-btn-primary hub-btn-primary--ghost pill-btn"
+                        (click)="openCompanyFromCard(b.companyId)"
+                      >
+                        Continue
+                      </button>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <ng-template #noExisting>
+                  <p class="lane-empty">
+                    No existing businesses yet. Start a new registration to begin.
+                  </p>
+                  <button
+                    type="button"
+                    class="link-btn"
+                    (click)="startRegistration()"
+                  >
+                    Start new registration →
+                  </button>
+                </ng-template>
+              </ng-container>
+
+              <!-- In Progress lane -->
+              <ng-container *ngSwitchCase="'progress'">
+                <div class="lane-panel__head">
+                  <h4 class="lane-panel__title">In Progress</h4>
+                </div>
+
+                <ng-container *ngIf="ownerInProgressBusinesses.length > 0; else noProgress">
+                  <div class="lane-list">
+                    <div
+                      class="company-pill company-pill--locked"
+                      *ngFor="let b of ownerInProgressBusinesses; trackBy: trackByOwnerBusinessId"
+                    >
+                      <div class="pill-main">
+                        <div class="pill-name">
+                          <mat-icon style="font-size:18px;vertical-align:middle;margin-right:6px;">lock</mat-icon>
+                          {{ b.businessName || '—' }}
+                        </div>
+                        <div class="pill-meta">
+                          {{ b.state || '—' }} • Pending Admin Verification
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        class="hub-btn-primary hub-btn-primary--ghost pill-btn"
+                        [disabled]="!b.businessId"
+                        (click)="viewOwnerBusiness(b.businessId)"
+                        matTooltip="You cannot edit after submission"
+                      >
+                        View
+                      </button>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <ng-template #noProgress>
+                  <p class="lane-empty">No submissions pending verification.</p>
+                </ng-template>
+              </ng-container>
+
+              <!-- Registered lane -->
+              <ng-container *ngSwitchCase="'registered'">
+                <div class="lane-panel__head">
+                  <h4 class="lane-panel__title">Registered Businesses</h4>
+                </div>
+
+                <ng-container *ngIf="ownerRegisteredBusinesses.length > 0; else noRegistered">
+                  <div class="lane-list">
+                    <div
+                      class="company-pill"
+                      *ngFor="let b of ownerRegisteredBusinesses; trackBy: trackByOwnerBusinessId"
+                    >
+                      <div class="pill-main">
+                        <div class="pill-name">{{ b.businessName || '—' }}</div>
+                        <div class="pill-meta">{{ b.state || '—' }}</div>
+                      </div>
+
+                      <button
+                        type="button"
+                        class="hub-btn-primary hub-btn-primary--ghost pill-btn"
+                        [disabled]="!b.businessId"
+                        (click)="viewOwnerBusiness(b.businessId)"
+                      >
+                        View
+                      </button>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <ng-template #noRegistered>
+                  <p class="lane-empty">
+                    No admin-approved registrations yet. Once your filings are approved,
+                    they’ll appear here.
+                  </p>
+                </ng-template>
+              </ng-container>
+            </div>
+
+            <!-- Quick actions row -->
+            <div class="quick-actions">
+              <div class="qa-card">
+                <div class="qa-card__head">
+                  <h4 class="qa-title">View BusinessHub</h4>
+                  <span class="qa-badge">Discover</span>
+                </div>
+                <p class="qa-sub">
+                  Explore the BusinessHub and discover verified local businesses.
+                </p>
+                <button
+                  type="button"
+                  class="hub-btn-primary qa-btn--full"
+                  (click)="accessMarketplace()"
+                >
+                  View BusinessHub
+                </button>
+              </div>
+
+              <div class="qa-card">
+                <div class="qa-card__head">
+                  <h4 class="qa-title">Register for BusinessHub</h4>
+                  <span class="qa-badge qa-badge--outline">New</span>
+                </div>
+                <p class="qa-sub">
+                  Start a new BusinessHub registration and get listed in the directory.
+                </p>
+                <button
+                  type="button"
+                  class="hub-btn-primary hub-btn-primary--ghost qa-btn--full"
+                  (click)="startRegistration()"
+                >
+                  Register Now
+                </button>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </section>
+    </ng-container>
+  </ng-container>
+
+  <!-- ════════════════════════════════════════════════════
+       3) CONSUMER_HUB – MARKETPLACE (unchanged)
+       ════════════════════════════════════════════════════ -->
+  <ng-container *ngSwitchCase="HubMode.CONSUMER_HUB">
+    <!-- HEADER -->
+    <header class="hub-header">
+      <div class="hub-container hub-header__row">
+        <div class="hub-header__left">
+          <button
+            *ngIf="marketplaceBackVisible()"
+            class="hub-back"
+            type="button"
+            (click)="backFromMarketplace()"
+          >
+            <svg
+              class="hub-back__icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M15 18l-6-6 6-6"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></path>
+            </svg>
+            <span>Back</span>
+          </button>
+
+          <span *ngIf="marketplaceBackVisible()" class="hub-divider"></span>
+
+          <div class="hub-brand">
+            <span class="hub-brand__mark">B</span>
+            <h1 class="hub-brand__name">BusinessHub</h1>
+          </div>
+        </div>
+
+        <div class="hub-header__right">
+          <button type="button" (click)="onJoinNow()" class="hub-btn-primary">
+            Join Now
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hub-hero">
+      <div class="hub-container">
+        <div class="hub-badges">
+          <span class="hub-badge">1,200+ Members</span>
+          <span class="hub-badge">Trusted Directory</span>
+          <span class="hub-badge">Growing Network</span>
+        </div>
+
+        <h2 class="hub-hero__title">Find Your Perfect Business Partner</h2>
+        <p class="hub-hero__sub">
+          Connect with verified local businesses and services in your
+          community.<br />
+          Discover quality, trusted partners for all your needs.
+        </p>
+      </div>
+    </section>
+
+    <!-- SEARCH -->
+    <section class="hub-search-pro">
+      <div class="hub-container">
+        <div class="hub-card hub-animate-in hub-search-pro__card">
+          <div class="hub-search-pro__head">
+            <h3 class="hub-h3">Search Local Businesses</h3>
+            <p class="hub-subtle">
+              Find exactly what you need with our advanced search filters
+            </p>
+          </div>
+
+          <div class="hub-search-pro__grid">
+            <div class="hub-field hub-area-query">
+              <label class="hub-label" for="queryInput">
+                What are you looking for?
+              </label>
+              <input
+                id="queryInput"
+                type="text"
+                class="hub-input"
+                placeholder="Search businesses, services, or keywords..."
+                [value]="searchQuery()"
+                (input)="onSearchInput($event)"
+              />
+            </div>
+
+            <div class="hub-field hub-area-category">
+              <label class="hub-label" for="catSelect">Category</label>
+              <select
+                id="catSelect"
+                class="hub-select"
+                [value]="selectedCategory()"
+                (change)="onCategorySelect($event)"
+              >
+                <option value="all">All Categories</option>
+                <option *ngFor="let c of categories()" [value]="c.value">
+                  {{ c.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="hub-field hub-area-zip">
+              <label class="hub-label" for="zipInput">ZIP Code</label>
+              <input
+                id="zipInput"
+                type="text"
+                inputmode="numeric"
+                class="hub-input"
+                placeholder="Enter ZIP code"
+                [value]="zipCode()"
+                maxlength="5"
+                pattern="[0-9]*"
+                (input)="onZipCodeInput($event)"
+              />
+            </div>
+
+            <div class="hub-actions hub-area-button">
+              <button
+                type="button"
+                class="hub-btn-primary hub-btn-primary--lg"
+                (click)="onSearch()"
+              >
+                <span class="hub-btn__content">
+                  <svg
+                    class="hub-ico-16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M21 21l-5.5-5.5M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    ></path>
+                  </svg>
+                  Search Businesses
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div class="hub-popular">
+            <span class="hub-small">Popular searches:</span>
+            <div class="hub-chips">
+              <button
+                type="button"
+                class="hub-chip"
+                (click)="searchQuery.set('Restaurants')"
+              >
+                Restaurants
+              </button>
+              <button
+                type="button"
+                class="hub-chip"
+                (click)="searchQuery.set('Dentists')"
+              >
+                Dentists
+              </button>
+              <button
+                type="button"
+                class="hub-chip"
+                (click)="searchQuery.set('Legal Services')"
+              >
+                Legal Services
+              </button>
+              <button
+                type="button"
+                class="hub-chip"
+                (click)="searchQuery.set('Real Estate')"
+              >
+                Real Estate
+              </button>
+              <button
+                type="button"
+                class="hub-chip"
+                (click)="searchQuery.set('Auto Repair')"
+              >
+                Auto Repair
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section class="hub-categories">
+      <div class="hub-container">
+        <div class="hub-section__head">
+          <h3 class="hub-h3">Browse by Category</h3>
+          <p class="hub-subtle">
+            Explore our comprehensive directory of local businesses
+          </p>
+        </div>
+
+        <div class="hub-grid-3">
+          <article
+            class="hub-tile hub-card hub-animate-in"
+            *ngFor="let category of categories()"
+          >
+            <div
+              class="hub-tile__img"
+              [style.backgroundImage]="'url(' + category.image + ')'"
+            ></div>
+            <div class="hub-tile__body">
+              <h4 class="hub-tile__title">{{ category.name }}</h4>
+              <p class="hub-small">{{ category.count }}+ listings</p>
+              <div class="hub-tile__actions">
+                <button
+                  type="button"
+                  class="hub-btn-primary"
+                  (click)="onCategoryClick(category.value)"
+                  [attr.aria-label]="'Open ' + category.name"
+                >
+                  Explore →
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </ng-container>
+</ng-container>
+
+<!-- ════════════════════════════════════════════════════
+     ✅ SHARED DETAIL TEMPLATES (GLOBAL)
+     Used by BOTH Admin Hub and Consumer View
+     ════════════════════════════════════════════════════ -->
+
+<!-- DETAIL “PAGE” (uses /business/id) -->
+<ng-template #adminDetailTpl>
+  <section class="registration-page admin-view">
+    <header class="header">
+      <div class="header-container">
+        <div class="header-content">
+          <button
+            type="button"
+            class="btn-cancel"
+            (click)="backFromDetail()"
+          >
+            ← {{ detailSource === 'admin' ? 'Back to list' : 'Back' }}
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <ng-container *ngIf="adminDetail as d; else adminDetailLoadingTpl">
+        <!-- Page header with Verify toggle -->
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">BusinessHub Submission</h1>
+          </div>
+
+          <div class="page-header-actions">
+            <!-- ✅ Admin: can verify -->
+            <ng-container
+              *ngIf="detailSource === 'admin' && isAdmin(); else consumerStatusTpl"
+            >
+              <mat-slide-toggle
+                class="verify-toggle"
+                [checked]="d.verified"
+                [disabled]="verifyBusy"
+                (change)="onVerifyToggle($event.checked)"
+              >
+                <span
+                  class="verify-label"
+                  [ngClass]="{
+                    'verify-label--verified': d.verified,
+                    'verify-label--pending': !d.verified
+                  }"
+                >
+                  {{ d.verified ? 'Verified' : 'Pending' }}
+                </span>
+              </mat-slide-toggle>
+            </ng-container>
+
+            <!-- ✅ Consumer: read-only status -->
+            <ng-template #consumerStatusTpl>
+              <span
+                class="verify-label"
+                [ngClass]="{
+                  'verify-label--verified': d.verified,
+                  'verify-label--pending': !d.verified
+                }"
+              >
+                {{ d.verified ? 'Verified' : 'Pending' }}
+              </span>
+            </ng-template>
+          </div>
+        </div>
+
+        <div class="two-column-grid">
+          <!-- LEFT COLUMN -->
+          <div class="card">
+            <div class="card-content compact">
+              <h2 class="section-title">Personal Information</h2>
+              <div class="form-fields">
+                <div class="grid-2">
+                  <div class="form-group">
+                    <label class="form-label">First Name</label>
+                    <input class="form-input" [value]="d.firstName" readonly />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Last Name</label>
+                    <input class="form-input" [value]="d.lastName" readonly />
+                  </div>
+                </div>
+
+                <div class="grid-2">
+                  <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input class="form-input" [value]="d.email" readonly />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input class="form-input" [value]="d.phoneNumber" readonly />
+                  </div>
+                </div>
+              </div>
+
+              <hr class="section-divider" />
+
+              <h2 class="section-title mt-tight">Location Information</h2>
+              <div class="form-fields">
+                <div class="form-group">
+                  <label class="form-label">Street Address</label>
+                  <input class="form-input" [value]="d.address" readonly />
+                </div>
+
+                <div class="grid-2">
+                  <div class="form-group">
+                    <label class="form-label">City</label>
+                    <input class="form-input" [value]="d.city" readonly />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">State</label>
+                    <input class="form-input" [value]="d.state" readonly />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">ZIP Code</label>
+                  <input class="form-input" [value]="d.zipCode" readonly />
+                </div>
+              </div>
+
+              <!-- BUSINESS IMAGES (thumbnails + click to preview) -->
+              <h2 class="section-title mt-tight">Business Images</h2>
+              <p class="section-subtitle">Photos of the business</p>
+
+              <ng-container *ngIf="uploadedImages.length; else noImagesTpl">
+                <label class="preview-label">
+                  Uploaded Images ({{ uploadedImages.length }})
+                </label>
+                <div class="uploaded-images">
+                  <div
+                    class="thumb-wrapper"
+                    *ngFor="let img of uploadedImages"
+                    (click)="openImagePreview(img)"
+                  >
+                    <img [src]="img" alt="Business image" class="thumb" />
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN -->
+          <div class="card">
+            <div class="card-content">
+              <h2 class="section-title">Business Information</h2>
+              <div class="form-fields">
+                <div class="form-group">
+                  <label class="form-label">Business Name</label>
+                  <input class="form-input" [value]="d.businessName" readonly />
+                </div>
+
+                <div class="grid-2">
+                  <div class="form-group">
+                    <label class="form-label">Type of Service</label>
+                    <input class="form-input" [value]="d.businessService" readonly />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Years in Business</label>
+                    <input class="form-input" [value]="d.yearsInBusiness" readonly />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Website URL</label>
+                  <input class="form-input" [value]="d.website" readonly />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Service Description</label>
+                  <textarea
+                    class="form-textarea"
+                    rows="4"
+                    [value]="d.serviceDescription"
+                    readonly
+                  ></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Business Hours</label>
+                  <input class="form-input" [value]="d.businessHours" readonly />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 🔍 Fullscreen image preview -->
+        <div
+          class="image-preview-backdrop"
+          *ngIf="previewImageUrl"
+          (click)="closeImagePreview()"
+        >
+          <div class="image-preview-content" (click)="$event.stopPropagation()">
+            <button
+              type="button"
+              class="image-preview-close"
+              (click)="closeImagePreview()"
+            >
+              ✕
+            </button>
+
+            <img
+              [src]="previewImageUrl"
+              alt="Business image preview"
+              class="image-preview-img"
+            />
+          </div>
+        </div>
+      </ng-container>
+    </main>
+  </section>
+</ng-template>
+
+<!-- LOADING + NO IMAGES TEMPLATES -->
+<ng-template #adminDetailLoadingTpl>
+  <div class="loading-state" *ngIf="adminDetailLoading">
+    Loading business details…
+  </div>
+  <div class="loading-state" *ngIf="!adminDetailLoading">
+    No details found.
+  </div>
+</ng-template>
+
+<ng-template #noImagesTpl>
+  <p class="image-empty">No images uploaded.</p>
+</ng-template>
