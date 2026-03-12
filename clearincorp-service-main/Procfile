@@ -1,0 +1,1 @@
+web: java -jar -Dspring.profiles.active=railway -Dserver.port=$PORT target/llc-api-1.0-SNAPSHOT.jar
