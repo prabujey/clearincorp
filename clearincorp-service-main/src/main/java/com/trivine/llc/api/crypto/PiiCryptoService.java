@@ -32,18 +32,45 @@ import static com.trivine.llc.api.crypto.PiiTypes.GCM_TAG_BITS;
 public class PiiCryptoService {
     private final SecretKey masterKey;
     private final SecureRandom rnd = new SecureRandom();
+    private final boolean cryptoEnabled;
 
     public PiiCryptoService(CryptoProperties props) {
-        byte[] keyBytes = Base64.getDecoder().decode(props.getMasterKeyB64());
-        if (keyBytes.length != 32) {
-            throw new IllegalArgumentException(
-                    "Master key must be exactly 32 bytes (256 bits). Got: " + keyBytes.length);
+        String keyB64 = props.getMasterKeyB64();
+
+        // Check if key is missing or a placeholder
+        if (keyB64 == null || keyB64.isBlank() || keyB64.startsWith("YOUR_")) {
+            log.warn("CRYPTO_MASTER_KEY not configured - PII encryption/decryption will not work!");
+            this.masterKey = null;
+            this.cryptoEnabled = false;
+            return;
         }
-        this.masterKey = new SecretKeySpec(keyBytes, "AES");
-        log.info("PiiCryptoService initialized with local AES-256-GCM envelope encryption");
+
+        try {
+            byte[] keyBytes = Base64.getDecoder().decode(keyB64);
+            if (keyBytes.length != 32) {
+                log.warn("Master key must be exactly 32 bytes (256 bits). Got: {} - PII encryption disabled", keyBytes.length);
+                this.masterKey = null;
+                this.cryptoEnabled = false;
+                return;
+            }
+            this.masterKey = new SecretKeySpec(keyBytes, "AES");
+            this.cryptoEnabled = true;
+            log.info("PiiCryptoService initialized with local AES-256-GCM envelope encryption");
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid Base64 master key - PII encryption disabled: {}", e.getMessage());
+            this.masterKey = null;
+            this.cryptoEnabled = false;
+        }
+    }
+
+    private void requireCrypto() {
+        if (!cryptoEnabled) {
+            throw new IllegalStateException("PII encryption is not configured. Please set a valid CRYPTO_MASTER_KEY.");
+        }
     }
 
     public EncryptResult encrypt(String plaintext) throws Exception {
+        requireCrypto();
         // 1. Generate a random 256-bit Data Encryption Key (DEK)
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
         keyGen.init(256, rnd);
@@ -80,6 +107,7 @@ public class PiiCryptoService {
     }
 
     public String decrypt(EncryptResult encryptResult) throws Exception {
+        requireCrypto();
         // 1. Decode the wrapped DEK (wrapIv + wrappedDek)
         byte[] encDek = Base64.getDecoder().decode(encryptResult.getEncryptedDekB64());
         byte[] wrapIv = new byte[12];
