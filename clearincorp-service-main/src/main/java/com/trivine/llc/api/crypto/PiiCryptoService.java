@@ -36,31 +36,29 @@ public class PiiCryptoService {
 
     public PiiCryptoService(CryptoProperties props) {
         String keyB64 = props.getMasterKeyB64();
+        SecretKey tempKey = null;
+        boolean tempEnabled = false;
 
         // Check if key is missing or a placeholder
         if (keyB64 == null || keyB64.isBlank() || keyB64.startsWith("YOUR_")) {
             log.warn("CRYPTO_MASTER_KEY not configured - PII encryption/decryption will not work!");
-            this.masterKey = null;
-            this.cryptoEnabled = false;
-            return;
+        } else {
+            try {
+                byte[] keyBytes = Base64.getDecoder().decode(keyB64);
+                if (keyBytes.length != 32) {
+                    log.warn("Master key must be exactly 32 bytes (256 bits). Got: {} - PII encryption disabled", keyBytes.length);
+                } else {
+                    tempKey = new SecretKeySpec(keyBytes, "AES");
+                    tempEnabled = true;
+                    log.info("PiiCryptoService initialized with local AES-256-GCM envelope encryption");
+                }
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid Base64 master key - PII encryption disabled: {}", e.getMessage());
+            }
         }
 
-        try {
-            byte[] keyBytes = Base64.getDecoder().decode(keyB64);
-            if (keyBytes.length != 32) {
-                log.warn("Master key must be exactly 32 bytes (256 bits). Got: {} - PII encryption disabled", keyBytes.length);
-                this.masterKey = null;
-                this.cryptoEnabled = false;
-                return;
-            }
-            this.masterKey = new SecretKeySpec(keyBytes, "AES");
-            this.cryptoEnabled = true;
-            log.info("PiiCryptoService initialized with local AES-256-GCM envelope encryption");
-        } catch (IllegalArgumentException e) {
-            log.warn("Invalid Base64 master key - PII encryption disabled: {}", e.getMessage());
-            this.masterKey = null;
-            this.cryptoEnabled = false;
-        }
+        this.masterKey = tempKey;
+        this.cryptoEnabled = tempEnabled;
     }
 
     private void requireCrypto() {
