@@ -14,6 +14,5 @@ COPY --from=build /app/target/llc-api-1.0-SNAPSHOT.jar app.jar
 ENV PORT=8080
 EXPOSE ${PORT}
 
-# Start the application
-ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=railway", "-Dserver.port=${PORT}", "app.jar"]
-# Trigger Railway rebuild
+# Start the application using shell form to expand PORT variable
+CMD java -jar -Dspring.profiles.active=railway -Dserver.port=${PORT} app.jar
