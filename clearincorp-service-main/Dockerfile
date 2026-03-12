@@ -16,3 +16,4 @@ EXPOSE ${PORT}
 
 # Start the application
 ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=railway", "-Dserver.port=${PORT}", "app.jar"]
+# Trigger Railway rebuild
