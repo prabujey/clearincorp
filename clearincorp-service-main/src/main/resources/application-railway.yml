@@ -19,7 +19,7 @@ spring:
     host: smtp.zeptomail.com
     port: 587
     username: ${MAIL_USERNAME:emailapikey}
-    password: ${MAIL_PASSWORD}
+    password: ${MAIL_PASSWORD:placeholder}
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
@@ -31,23 +31,26 @@ spring:
       - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
   main:
     allow-bean-definition-overriding: true
+    lazy-initialization: false
 
   # PostgreSQL Configuration for Neon.tech
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/clearincorp}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/clearincorp?sslmode=prefer}
     username: ${DATABASE_USERNAME:postgres}
-    password: ${DATABASE_PASSWORD}
+    password: ${DATABASE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 5
-      minimum-idle: 2
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      connection-timeout: 30000
+      maximum-pool-size: 3
+      minimum-idle: 1
+      idle-timeout: 300000
+      max-lifetime: 900000
+      connection-timeout: 20000
       pool-name: "ClearInCorp-HikariCP"
+      initialization-fail-timeout: 30000
 
   jpa:
     show-sql: false
+    open-in-view: false
     hibernate:
       ddl-auto: update
     properties:
@@ -55,7 +58,10 @@ spring:
         format_sql: false
         use_sql_comments: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: 25
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+    defer-datasource-initialization: false
 
 logging:
   level:
@@ -75,16 +81,17 @@ server:
 # AWS CONFIGURATION (for S3/Cognito if still using AWS)
 # ============================================================================
 aws:
-  accessKeyId: ${AWS_ACCESS_KEY_ID}
-  secretAccessKey: ${AWS_SECRET_ACCESS_KEY}
+  accessKeyId: ${AWS_ACCESS_KEY_ID:placeholder}
+  secretAccessKey: ${AWS_SECRET_ACCESS_KEY:placeholder}
   region: ${AWS_REGION:us-east-1}
   s3:
     bucket-name: ${AWS_S3_BUCKET:clearincorp-documents}
     marketplace-bucket: ${AWS_S3_MARKETPLACE_BUCKET:clearincorp-marketplace}
   cognito:
-    user-pool-id: ${AWS_COGNITO_USER_POOL_ID}
-    client-id: ${AWS_COGNITO_CLIENT_ID}
-    client-secret: ${AWS_COGNITO_CLIENT_SECRET}
+    enabled: ${AWS_COGNITO_ENABLED:false}
+    user-pool-id: ${AWS_COGNITO_USER_POOL_ID:placeholder}
+    client-id: ${AWS_COGNITO_CLIENT_ID:placeholder}
+    client-secret: ${AWS_COGNITO_CLIENT_SECRET:placeholder}
     hmac-algorithm: HmacSHA256
     default-password: ${AWS_COGNITO_DEFAULT_PASSWORD:TempPass@1234}
 
@@ -92,15 +99,15 @@ aws:
 # STRIPE CONFIGURATION
 # ============================================================================
 stripe:
-  secretKey: ${STRIPE_SECRET_KEY}
-  publicKey: ${STRIPE_PUBLIC_KEY}
+  secretKey: ${STRIPE_SECRET_KEY:sk_test_placeholder}
+  publicKey: ${STRIPE_PUBLIC_KEY:pk_test_placeholder}
 
 # ============================================================================
 # ENCRYPTION
 # ============================================================================
 crypto:
   local:
-    master-key-b64: ${CRYPTO_MASTER_KEY}
+    master-key-b64: ${CRYPTO_MASTER_KEY:}
 
 # ============================================================================
 # FRONTEND CORS
@@ -115,7 +122,7 @@ frontend:
 # ============================================================================
 gemini:
   api:
-    key: ${GEMINI_API_KEY}
+    key: ${GEMINI_API_KEY:placeholder}
     url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
 
 # ============================================================================
