@@ -14,5 +14,8 @@ COPY --from=build /app/target/llc-api-1.0-SNAPSHOT.jar app.jar
 ENV PORT=8080
 EXPOSE ${PORT}
 
-# Start the application using shell form to expand PORT variable
-CMD java -jar -Dspring.profiles.active=railway -Dserver.port=${PORT} app.jar
+# JVM options for container environments
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError"
+
+# Start the application with proper JVM options
+CMD java ${JAVA_OPTS} -jar -Dspring.profiles.active=railway -Dserver.port=${PORT} app.jar
